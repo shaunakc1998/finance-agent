@@ -1,49 +1,96 @@
 # Contributing to Finance Agent
 
-Thank you for considering contributing to Finance Agent! This document outlines the process for contributing to this project.
+Thank you for considering contributing to Finance Agent! This document provides guidelines and instructions for contributing to this project.
+
+## Table of Contents
+
+- [Code of Conduct](#code-of-conduct)
+- [Getting Started](#getting-started)
+- [How to Contribute](#how-to-contribute)
+  - [Reporting Bugs](#reporting-bugs)
+  - [Suggesting Enhancements](#suggesting-enhancements)
+  - [Pull Requests](#pull-requests)
+- [Development Workflow](#development-workflow)
+- [Style Guidelines](#style-guidelines)
+- [Commit Messages](#commit-messages)
+- [License](#license)
 
 ## Code of Conduct
 
-By participating in this project, you agree to abide by our [Code of Conduct](CODE_OF_CONDUCT.md).
+This project and everyone participating in it is governed by our [Code of Conduct](CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code.
 
-## How Can I Contribute?
+## Getting Started
+
+1. Fork the repository
+2. Clone your fork: `git clone https://github.com/your-username/finance-agent.git`
+3. Create a virtual environment: `python -m venv venv`
+4. Activate the virtual environment:
+   - Windows: `venv\Scripts\activate`
+   - Unix/MacOS: `source venv/bin/activate`
+5. Install dependencies: `pip install -r requirements.txt`
+6. Create a `.env` file with your API keys (see `.env.example`)
+7. Run the application: `python web/app.py`
+
+## How to Contribute
 
 ### Reporting Bugs
 
-- Check if the bug has already been reported in the Issues section
-- Use the bug report template to create a new issue
-- Include detailed steps to reproduce the bug
-- Include any relevant logs or screenshots
+Before creating bug reports, please check the issue tracker to see if the problem has already been reported. If it has and the issue is still open, add a comment to the existing issue instead of opening a new one.
+
+When creating a bug report, include as many details as possible:
+
+- A clear and descriptive title
+- Steps to reproduce the issue
+- Expected behavior
+- Actual behavior
+- Screenshots (if applicable)
+- Your environment (OS, Python version, etc.)
 
 ### Suggesting Enhancements
 
-- Check if the enhancement has already been suggested in the Issues section
-- Use the feature request template to create a new issue
-- Clearly describe the enhancement and its benefits
+Enhancement suggestions are tracked as GitHub issues. When creating an enhancement suggestion, include:
+
+- A clear and descriptive title
+- A detailed description of the proposed functionality
+- Any relevant examples or mockups
+- Why this enhancement would be useful to most users
 
 ### Pull Requests
 
-1. Fork the repository
-2. Create a new branch (`git checkout -b feature/your-feature-name`)
-3. Make your changes
-4. Run tests to ensure your changes don't break existing functionality
-5. Commit your changes (`git commit -m 'Add some feature'`)
-6. Push to the branch (`git push origin feature/your-feature-name`)
-7. Open a Pull Request
+1. Create a new branch from `main`: `git checkout -b feature/your-feature-name`
+2. Make your changes
+3. Run tests: `pytest`
+4. Commit your changes with a descriptive commit message
+5. Push to your fork: `git push origin feature/your-feature-name`
+6. Open a pull request against the `main` branch
 
-## Development Setup
+Pull requests should:
 
-1. Clone the repository
-2. Install dependencies: `pip install -r requirements.txt`
-3. Set up environment variables as described in the README
+- Have a clear and descriptive title
+- Include a detailed description of the changes
+- Reference any related issues
+- Pass all tests and CI checks
+- Be reviewed by at least one maintainer
 
-## Coding Guidelines
+## Development Workflow
 
-- Follow PEP 8 style guide for Python code
-- Write docstrings for all functions, classes, and modules
-- Include unit tests for new features
-- Keep functions small and focused on a single task
+1. Pick an issue to work on or create a new one
+2. Create a new branch for your feature or bugfix
+3. Write tests for your changes
+4. Implement your changes
+5. Run tests to ensure they pass
+6. Update documentation if necessary
+7. Submit a pull request
+
+## Style Guidelines
+
+This project follows PEP 8 style guidelines for Python code. We use flake8 for linting.
+
+- Use 4 spaces for indentation
+- Use docstrings for all functions, classes, and modules
+- Keep line length to 120 characters or less
 - Use meaningful variable and function names
+- Write clear comments for complex logic
 
 ## Commit Messages
 
@@ -51,16 +98,14 @@ By participating in this project, you agree to abide by our [Code of Conduct](CO
 - Use the imperative mood ("Move cursor to..." not "Moves cursor to...")
 - Limit the first line to 72 characters or less
 - Reference issues and pull requests after the first line
+- Consider starting the commit message with an applicable emoji:
+  - ✨ (sparkles) for new features
+  - 🐛 (bug) for bug fixes
+  - 📚 (books) for documentation changes
+  - ♻️ (recycle) for refactoring
+  - 🧪 (test tube) for adding tests
+  - 🔧 (wrench) for configuration changes
 
-## Testing
+## License
 
-- Add tests for new features
-- Run the test suite before submitting a pull request
-- Ensure all tests pass
-
-## Documentation
-
-- Update the README.md with details of changes to the interface
-- Update the documentation when changing functionality
-
-Thank you for contributing to Finance Agent!
+By contributing to Finance Agent, you agree that your contributions will be licensed under the project's [MIT License](LICENSE).

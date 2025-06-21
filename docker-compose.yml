@@ -1,0 +1,20 @@
+version: '3'
+
+services:
+  finance-agent:
+    build: .
+    ports:
+      - "5001:5001"
+    volumes:
+      - ./web/database:/app/web/database
+      - ./models:/app/models
+      - ./cache:/app/cache
+      - ./vectors:/app/vectors
+      - ./visualizations:/app/visualizations
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - ALPHA_VANTAGE_API_KEY=${ALPHA_VANTAGE_API_KEY}
+      - FINNHUB_API_KEY=${FINNHUB_API_KEY}
+      - POLYGON_API_KEY=${POLYGON_API_KEY}
+      - IEX_CLOUD_API_KEY=${IEX_CLOUD_API_KEY}
+    restart: unless-stopped

@@ -81,10 +81,8 @@ def save_api_keys():
     
     # Get API keys from form
     api_keys = {
-        'alpha_vantage_key': request.form.get('alpha_vantage_key', ''),
-        'finnhub_key': request.form.get('finnhub_key', ''),
-        'polygon_key': request.form.get('polygon_key', ''),
-        'iex_key': request.form.get('iex_key', '')
+        'openai_api_key': request.form.get('openai_api_key', ''),
+        'alpha_vantage_key': request.form.get('alpha_vantage_key', '')
     }
     
     # Save API keys to database
@@ -241,6 +239,11 @@ def process_with_finance_agent(user_message, history):
             chat_history.add_user_message(msg['content'])
         elif msg['role'] == 'assistant':
             chat_history.add_ai_message(msg['content'])
+    
+    # Set OpenAI API key if provided by user
+    openai_api_key = api_keys.get('openai_api_key', None)
+    if openai_api_key:
+        os.environ["OPENAI_API_KEY"] = openai_api_key
     
     # Monkey patch the technicals_tool to use user API keys
     original_technicals_tool = tools.technicals.get_technicals
