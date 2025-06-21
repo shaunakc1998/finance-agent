@@ -44,6 +44,14 @@ def init_db():
         FOREIGN KEY (session_id) REFERENCES sessions (session_id)
     )
     ''')
+    c.execute('''
+    CREATE TABLE IF NOT EXISTS users (
+        id TEXT PRIMARY KEY,
+        username TEXT UNIQUE,
+        api_keys TEXT,
+        created_at TIMESTAMP
+    )
+    ''')
     conn.commit()
     conn.close()
     print(f"Database initialized at {DB_PATH}")
@@ -56,6 +64,52 @@ init_db()
 def index():
     """Render the main chat interface"""
     return render_template('index.html')
+
+@app.route('/settings')
+def settings():
+    """Render the settings page"""
+    # Get current API keys for the user
+    user_id = request.cookies.get('user_id', 'anonymous')
+    current_keys = get_user_api_keys(user_id)
+    
+    return render_template('settings.html', current_keys=current_keys)
+
+@app.route('/save_api_keys', methods=['POST'])
+def save_api_keys():
+    """Save API keys for a user"""
+    user_id = request.cookies.get('user_id', 'anonymous')
+    
+    # Get API keys from form
+    api_keys = {
+        'openai_api_key': request.form.get('openai_api_key', ''),
+        'alpha_vantage_key': request.form.get('alpha_vantage_key', '')
+    }
+    
+    # Save API keys to database
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    
+    # Check if user exists
+    cursor.execute('SELECT id FROM users WHERE id = ?', (user_id,))
+    user = cursor.fetchone()
+    
+    if user:
+        # Update existing user
+        cursor.execute(
+            'UPDATE users SET api_keys = ? WHERE id = ?',
+            (json.dumps(api_keys), user_id)
+        )
+    else:
+        # Create new user
+        cursor.execute(
+            'INSERT INTO users (id, api_keys, created_at) VALUES (?, ?, ?)',
+            (user_id, json.dumps(api_keys), datetime.now().isoformat())
+        )
+    
+    conn.commit()
+    conn.close()
+    
+    return render_template('settings.html', current_keys=api_keys, message="API keys saved successfully")
 
 @app.route('/api/sessions', methods=['GET'])
 def get_sessions():
@@ -159,8 +213,24 @@ def get_history(session_id):
     
     return jsonify({'messages': messages})
 
+def get_user_api_keys(user_id):
+    """Get API keys for a user"""
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute('SELECT api_keys FROM users WHERE id = ?', (user_id,))
+    result = cursor.fetchone()
+    conn.close()
+    
+    if result and result[0]:
+        return json.loads(result[0])
+    return {}
+
 def process_with_finance_agent(user_message, history):
     """Process a message with the finance agent"""
+    # Get user API keys
+    user_id = request.cookies.get('user_id', 'anonymous')
+    api_keys = get_user_api_keys(user_id)
+    
     # Convert history to the format expected by LangChain
     chat_history = ChatMessageHistory()
     
@@ -169,6 +239,21 @@ def process_with_finance_agent(user_message, history):
             chat_history.add_user_message(msg['content'])
         elif msg['role'] == 'assistant':
             chat_history.add_ai_message(msg['content'])
+    
+    # Set OpenAI API key if provided by user
+    openai_api_key = api_keys.get('openai_api_key', None)
+    if openai_api_key:
+        os.environ["OPENAI_API_KEY"] = openai_api_key
+    
+    # Monkey patch the technicals_tool to use user API keys
+    original_technicals_tool = tools.technicals.get_technicals
+    
+    def patched_technicals(ticker):
+        alpha_vantage_key = api_keys.get('alpha_vantage_key', None)
+        return original_technicals_tool(ticker, user_api_key=alpha_vantage_key)
+    
+    # Temporarily replace the function
+    tools.technicals.get_technicals = patched_technicals
     
     # Create agent with history
     agent_with_chat_history = RunnableWithMessageHistory(
@@ -192,10 +277,13 @@ def process_with_finance_agent(user_message, history):
         ansi_escape = re.compile(r'\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])')
         cleaned_output = ansi_escape.sub('', output)
         
+        # Restore original function
+        tools.technicals.get_technicals = original_technicals_tool
+        
         return cleaned_output
     except Exception as e:
         print(f"Error processing message: {e}")
         return f"I encountered an error while processing your request: {str(e)}"
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5001)
+    app.run(debug=True, port=5001, host='0.0.0.0')

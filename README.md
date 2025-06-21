@@ -1,13 +1,16 @@
 # Finance Agent with Advanced Price Forecasting and Financial Analysis
 
 [![Python Lint and Test](https://github.com/yourusername/finance-agent/actions/workflows/python-lint-test.yml/badge.svg)](https://github.com/yourusername/finance-agent/actions/workflows/python-lint-test.yml)
-[![CodeQL](https://github.com/yourusername/finance-agent/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/yourusername/finance-agent/actions/workflows/codeql-analysis.yml)
+[![Docker Build](https://github.com/yourusername/finance-agent/actions/workflows/docker-build.yml/badge.svg)](https://github.com/yourusername/finance-agent/actions/workflows/docker-build.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-A comprehensive financial research agent with advanced price forecasting capabilities using machine learning models and in-depth financial analysis with vector search.
+A comprehensive financial research agent with advanced price forecasting capabilities using machine learning models and in-depth financial analysis with vector search. Now with a modern web interface for easy interaction and API key management.
 
 ## Features
 
+- **Web Interface**: Modern, responsive web interface for easy interaction with the finance agent
+- **API Key Management**: Securely manage your API keys through the web interface
+- **Chat History**: Save and revisit your previous conversations
 - **Fundamental Analysis**: Get key financial metrics like P/E ratio, EPS, market cap, and more
 - **Technical Analysis**: Access technical indicators like RSI, SMA50, SMA200, and trend signals
 - **Investment Strategy**: Receive buy/sell/hold recommendations with confidence levels and price targets
@@ -15,6 +18,8 @@ A comprehensive financial research agent with advanced price forecasting capabil
 - **Price Forecasting**: ML-based price predictions with confidence intervals and feature importance
 - **Financial Insights**: Comprehensive financial analysis including earnings call transcripts, SEC filings, and financial statements
 - **Vector Search**: Ask specific questions about a company's financials and get relevant information
+- **Docker Support**: Easy deployment with Docker and Docker Compose
+- **CI/CD Integration**: GitHub Actions workflows for testing, linting, and Docker image building
 
 ## Price Forecasting Module
 
@@ -38,9 +43,19 @@ The price forecasting module uses machine learning models to predict future pric
 
 ## Usage
 
-### Chat Agent
+### Web Interface
 
-Run the chat agent to interact with the financial research assistant:
+Run the web application to interact with the financial research assistant through a modern web interface:
+
+```bash
+python web/app.py
+```
+
+Then open your browser and navigate to http://localhost:5001
+
+### Chat Agent (CLI)
+
+Alternatively, you can use the command-line interface:
 
 ```bash
 python chat_agent.py
@@ -147,19 +162,32 @@ This will run a comprehensive test of all financial analysis features and save t
 
 ### From Source
 
-Clone the repository and install the package:
+Clone the repository and install the dependencies:
 
 ```bash
 git clone https://github.com/yourusername/finance-agent.git
 cd finance-agent
-pip install -e .
+pip install -r requirements.txt
 ```
 
-### Using pip
+### Using Docker
 
 ```bash
-pip install finance-agent
+# Clone the repository
+git clone https://github.com/yourusername/finance-agent.git
+cd finance-agent
+
+# Create a .env file with your API keys
+cp .env.example .env
+# Edit .env with your API keys
+
+# Build and run with Docker Compose
+docker-compose up -d
 ```
+
+Then open your browser and navigate to http://localhost:5001
+
+For more deployment options, see [DEPLOYMENT.md](DEPLOYMENT.md).
 
 ## Development Setup
 
@@ -175,22 +203,23 @@ pip install finance-agent
    source venv/bin/activate  # On Windows: venv\Scripts\activate
    ```
 
-3. Install development dependencies:
+3. Install dependencies:
    ```bash
-   pip install -e ".[dev]"
    pip install -r requirements.txt
    ```
 
-4. Install pre-commit hooks:
-   ```bash
-   pre-commit install
-   ```
-
-5. Set up environment variables:
+4. Set up environment variables:
    ```bash
    cp .env.example .env
    # Edit .env with your API keys and configuration
    ```
+
+5. Run the web application:
+   ```bash
+   python web/app.py
+   ```
+
+6. Open your browser and navigate to http://localhost:5001
 
 ## Contributing
 
@@ -202,7 +231,11 @@ This project adheres to a [Code of Conduct](CODE_OF_CONDUCT.md). By participatin
 
 ### Branch Protection
 
-The `master` branch is protected. All changes must be made through pull requests that pass all checks and receive approval.
+The `main` branch is protected. All changes must be made through pull requests that pass all checks and receive approval.
+
+## Deployment
+
+For detailed deployment instructions, including Docker, Heroku, DigitalOcean, Railway, Render, AWS, and Google Cloud, see [DEPLOYMENT.md](DEPLOYMENT.md).
 
 ## License
 

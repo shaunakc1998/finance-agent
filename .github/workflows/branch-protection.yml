@@ -1,0 +1,30 @@
+name: Branch Protection
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  protect-branch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup GitHub CLI
+        run: |
+          gh auth login --with-token <<< "${{ secrets.GITHUB_TOKEN }}"
+
+      - name: Configure branch protection
+        run: |
+          gh api \
+            --method PUT \
+            -H "Accept: application/vnd.github+json" \
+            /repos/${{ github.repository }}/branches/main/protection \
+            -f required_status_checks='{"strict":true,"contexts":["lint-and-test"]}' \
+            -f enforce_admins=true \
+            -f required_pull_request_reviews='{"dismissal_restrictions":{},"dismiss_stale_reviews":true,"require_code_owner_reviews":false,"required_approving_review_count":1}' \
+            -f restrictions=null
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

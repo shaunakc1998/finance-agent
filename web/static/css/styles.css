@@ -77,6 +77,30 @@ body {
     padding: 16px;
 }
 
+.sidebar-footer {
+    padding: 16px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.settings-link {
+    display: block;
+    padding: 10px;
+    color: var(--light-text);
+    text-decoration: none;
+    border-radius: 4px;
+    text-align: center;
+    transition: background-color 0.2s;
+}
+
+.settings-link:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: var(--light-text);
+}
+
+.settings-link i {
+    margin-right: 8px;
+}
+
 .chat-item {
     padding: 10px;
     margin-bottom: 8px;
@@ -471,6 +495,40 @@ body {
 
 .modal button:hover {
     background-color: #0069d9;
+}
+
+/* Settings page */
+.card {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border: none;
+}
+
+.card-header {
+    font-weight: bold;
+}
+
+.form-group label {
+    font-weight: 500;
+}
+
+.form-text {
+    font-size: 0.8rem;
+}
+
+.alert {
+    margin-bottom: 20px;
+}
+
+.alert-success {
+    background-color: #d4edda;
+    border-color: #c3e6cb;
+    color: #155724;
+}
+
+.alert-danger {
+    background-color: #f8d7da;
+    border-color: #f5c6cb;
+    color: #721c24;
 }
 
 /* Responsive design */

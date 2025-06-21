@@ -42,17 +42,17 @@ def timeout(seconds: int = 15):
 alpha_vantage_cache = {}
 
 # Fallback API for stock data
-def get_alphavantage_price(ticker: str) -> Optional[float]:
+def get_alphavantage_price(ticker: str, user_api_key: str = None) -> Optional[float]:
     """Get current stock price from Alpha Vantage API as fallback"""
     try:
         # Check cache first
         if ticker in alpha_vantage_cache and time.time() - alpha_vantage_cache[ticker]["timestamp"] < 3600:  # Cache for 1 hour
             return alpha_vantage_cache[ticker]["price"]
         
-        # Get API key from environment variables
-        api_key = os.getenv("ALPHA_VANTAGE_API_KEY")
+        # Get API key from user-provided key or environment variables
+        api_key = user_api_key or os.getenv("ALPHA_VANTAGE_API_KEY")
         if not api_key:
-            print("Alpha Vantage API key not found in environment variables")
+            print("Alpha Vantage API key not found")
             return None
         
         # Make API request to Alpha Vantage
@@ -108,7 +108,7 @@ def get_alphavantage_price(ticker: str) -> Optional[float]:
 
 # Use LRU cache to store recent price history (cache size of 64 items)
 @lru_cache(maxsize=64)
-def get_price_history(ticker: str) -> Tuple[pd.DataFrame, Optional[str]]:
+def get_price_history(ticker: str, user_api_key: str = None) -> Tuple[pd.DataFrame, Optional[str]]:
     """Get price history with caching and timeout protection"""
     try:
         with timeout(15):  # 15 second timeout for price history
@@ -118,7 +118,7 @@ def get_price_history(ticker: str) -> Tuple[pd.DataFrame, Optional[str]]:
             
             if df.empty:
                 # Try fallback for current price
-                current_price = get_alphavantage_price(ticker)
+                current_price = get_alphavantage_price(ticker, user_api_key)
                 if current_price:
                     # Create a simple DataFrame with just today's price
                     today = pd.Timestamp.now().floor('D')
@@ -132,7 +132,7 @@ def get_price_history(ticker: str) -> Tuple[pd.DataFrame, Optional[str]]:
             
     except TimeoutException:
         # Try fallback for current price
-        current_price = get_alphavantage_price(ticker)
+        current_price = get_alphavantage_price(ticker, user_api_key)
         if current_price:
             # Create a simple DataFrame with just today's price
             today = pd.Timestamp.now().floor('D')
@@ -141,7 +141,7 @@ def get_price_history(ticker: str) -> Tuple[pd.DataFrame, Optional[str]]:
         return pd.DataFrame(), "API request timed out"
     except Exception as e:
         # Try fallback for current price
-        current_price = get_alphavantage_price(ticker)
+        current_price = get_alphavantage_price(ticker, user_api_key)
         if current_price:
             # Create a simple DataFrame with just today's price
             today = pd.Timestamp.now().floor('D')
@@ -173,7 +173,7 @@ def calculate_indicators(df: pd.DataFrame) -> pd.DataFrame:
     
     return df
 
-def get_technicals(ticker: str) -> Dict[str, Union[str, float, bool, None]]:
+def get_technicals(ticker: str, user_api_key: str = None) -> Dict[str, Union[str, float, bool, None]]:
     """
     Fetches basic technical indicators for a given stock or ETF.
     
@@ -204,7 +204,7 @@ def get_technicals(ticker: str) -> Dict[str, Union[str, float, bool, None]]:
     result = {"symbol": ticker}
     
     # Get price history (cached if recently requested)
-    df, error = get_price_history(ticker)
+    df, error = get_price_history(ticker, user_api_key)
     
     if error:
         result["error"] = f"Error retrieving technicals: {error}"
