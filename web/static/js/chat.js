@@ -17,6 +17,9 @@ const closeModalButton = document.querySelector('.close');
 
 // Initialize the app
 document.addEventListener('DOMContentLoaded', () => {
+    // Ensure user has a unique ID
+    ensureUserId();
+    
     // Load chat history
     loadChatSessions();
     
@@ -83,13 +86,15 @@ async function loadChatSessions() {
 // Create a new chat session
 async function createNewChat() {
     try {
+        const userId = getCookie('user_id') || ensureUserId();
+        
         const response = await fetch('/api/sessions', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                user_id: 'user', // In a real app, this would be the authenticated user's ID
+                user_id: userId,
                 name: `Chat ${new Date().toLocaleString()}`
             })
         });
@@ -468,3 +473,28 @@ window.onclick = function(event) {
         closeModal();
     }
 };
+
+// Generate and store a unique user ID
+function ensureUserId() {
+    let userId = getCookie('user_id');
+    
+    if (!userId) {
+        // Generate a random user ID
+        userId = 'user_' + Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+        
+        // Set cookie that expires in 1 year
+        const expiryDate = new Date();
+        expiryDate.setFullYear(expiryDate.getFullYear() + 1);
+        document.cookie = `user_id=${userId}; expires=${expiryDate.toUTCString()}; path=/; SameSite=Strict`;
+    }
+    
+    return userId;
+}
+
+// Get cookie by name
+function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
+    return null;
+}

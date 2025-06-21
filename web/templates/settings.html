@@ -1,0 +1,71 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">API Settings</h3>
+                </div>
+                <div class="card-body">
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% if messages %}
+                            {% for category, message in messages %}
+                                <div class="alert alert-{{ category }}">{{ message }}</div>
+                            {% endfor %}
+                        {% endif %}
+                    {% endwith %}
+                    
+                    <form id="api-keys-form" method="POST" action="/save_api_keys">
+                        <div class="form-group mb-3">
+                            <label for="alpha_vantage_key">Alpha Vantage API Key:</label>
+                            <input type="text" id="alpha_vantage_key" name="alpha_vantage_key" 
+                                value="{{ current_keys.get('alpha_vantage_key', '') }}" class="form-control">
+                            <small class="form-text text-muted">Get your key at <a href="https://www.alphavantage.co/support/#api-key" target="_blank">alphavantage.co</a></small>
+                        </div>
+                        
+                        <div class="form-group mb-3">
+                            <label for="finnhub_key">Finnhub API Key:</label>
+                            <input type="text" id="finnhub_key" name="finnhub_key" 
+                                value="{{ current_keys.get('finnhub_key', '') }}" class="form-control">
+                            <small class="form-text text-muted">Get your key at <a href="https://finnhub.io/register" target="_blank">finnhub.io</a></small>
+                        </div>
+                        
+                        <div class="form-group mb-3">
+                            <label for="polygon_key">Polygon.io API Key:</label>
+                            <input type="text" id="polygon_key" name="polygon_key" 
+                                value="{{ current_keys.get('polygon_key', '') }}" class="form-control">
+                            <small class="form-text text-muted">Get your key at <a href="https://polygon.io/dashboard/signup" target="_blank">polygon.io</a></small>
+                        </div>
+                        
+                        <div class="form-group mb-3">
+                            <label for="iex_key">IEX Cloud API Key:</label>
+                            <input type="text" id="iex_key" name="iex_key" 
+                                value="{{ current_keys.get('iex_key', '') }}" class="form-control">
+                            <small class="form-text text-muted">Get your key at <a href="https://iexcloud.io/cloud-login#/register/" target="_blank">iexcloud.io</a></small>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary">Save API Keys</button>
+                    </form>
+                </div>
+                <div class="card-footer">
+                    <p class="mb-0"><small>Your API keys are stored securely and are only used for your requests.</small></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('api-keys-form');
+        
+        form.addEventListener('submit', function(e) {
+            // You can add client-side validation here if needed
+            // For example, check if keys match expected formats
+        });
+    });
+</script>
+{% endblock %}
