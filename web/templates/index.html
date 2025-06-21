@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Finance Agent Chat</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/styles/github.min.css">
+</head>
+<body>
+    <div class="app-container">
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <button id="new-chat-btn" class="new-chat-btn">
+                    <i class="fas fa-plus"></i> New Chat
+                </button>
+            </div>
+            <div class="chat-history" id="chat-history">
+                <!-- Chat history will be populated here -->
+                <div class="loading-history">Loading chats...</div>
+            </div>
+        </div>
+        <div class="main-content">
+            <div class="chat-container" id="chat-container">
+                <div class="welcome-screen" id="welcome-screen">
+                    <h1>Finance Agent Chat</h1>
+                    <p>Your AI-powered financial research assistant</p>
+                    <div class="example-prompts">
+                        <h3>Example prompts to get started:</h3>
+                        <div class="prompt-grid">
+                            <div class="prompt-card" data-prompt="What's the current P/E ratio and EPS for AAPL?">
+                                <i class="fas fa-chart-line"></i>
+                                <p>What's the current P/E ratio and EPS for AAPL?</p>
+                            </div>
+                            <div class="prompt-card" data-prompt="Analyze the technical indicators for MSFT">
+                                <i class="fas fa-chart-bar"></i>
+                                <p>Analyze the technical indicators for MSFT</p>
+                            </div>
+                            <div class="prompt-card" data-prompt="Should I buy, sell, or hold NVDA right now?">
+                                <i class="fas fa-money-bill-wave"></i>
+                                <p>Should I buy, sell, or hold NVDA right now?</p>
+                            </div>
+                            <div class="prompt-card" data-prompt="Create an optimal portfolio with AAPL, MSFT, GOOGL, AMZN, and META">
+                                <i class="fas fa-briefcase"></i>
+                                <p>Create an optimal portfolio with AAPL, MSFT, GOOGL, AMZN, and META</p>
+                            </div>
+                            <div class="prompt-card" data-prompt="Forecast TSLA stock price for the next 10 days">
+                                <i class="fas fa-crystal-ball"></i>
+                                <p>Forecast TSLA stock price for the next 10 days</p>
+                            </div>
+                            <div class="prompt-card" data-prompt="How sensitive is JPM to interest rate changes?">
+                                <i class="fas fa-university"></i>
+                                <p>How sensitive is JPM to interest rate changes?</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="messages" id="messages">
+                    <!-- Messages will be displayed here -->
+                </div>
+            </div>
+            <div class="input-container">
+                <textarea id="message-input" placeholder="Ask about stocks, ETFs, or investment strategies..." rows="1"></textarea>
+                <button id="send-btn" disabled>
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for renaming chats -->
+    <div id="rename-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Rename Chat</h2>
+            <input type="text" id="rename-input" placeholder="Enter new name">
+            <button id="rename-confirm-btn">Rename</button>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/lib/core.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/lib/languages/python.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/lib/languages/javascript.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/lib/languages/json.min.js"></script>
+    <script src="{{ url_for('static', filename='js/chat.js') }}"></script>
+</body>
+</html>

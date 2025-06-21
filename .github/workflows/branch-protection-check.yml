@@ -1,0 +1,48 @@
+name: Branch Protection Check
+
+on:
+  schedule:
+    - cron: '0 0 * * 1'  # Run once a week on Monday
+  workflow_dispatch:  # Allow manual triggering
+
+jobs:
+  check-branch-protection:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Check branch protection
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+        run: |
+          echo "Checking branch protection rules for $REPO"
+          
+          # Get the default branch name
+          DEFAULT_BRANCH=$(gh api repos/$REPO | jq -r '.default_branch')
+          echo "Default branch is $DEFAULT_BRANCH"
+          
+          # Check if branch protection is enabled
+          PROTECTION=$(gh api repos/$REPO/branches/$DEFAULT_BRANCH/protection 2>/dev/null || echo '{"enabled": false}')
+          
+          if echo "$PROTECTION" | jq -e '.required_pull_request_reviews' > /dev/null; then
+            echo "✅ Pull request reviews are required"
+          else
+            echo "❌ Pull request reviews are NOT required"
+            echo "::warning::Branch protection is not properly configured. Please enable required pull request reviews."
+          fi
+          
+          if echo "$PROTECTION" | jq -e '.required_status_checks' > /dev/null; then
+            echo "✅ Status checks are required"
+          else
+            echo "❌ Status checks are NOT required"
+            echo "::warning::Branch protection is not properly configured. Please enable required status checks."
+          fi
+          
+          if echo "$PROTECTION" | jq -e '.enforce_admins.enabled' > /dev/null; then
+            echo "✅ Admin enforcement is enabled"
+          else
+            echo "❌ Admin enforcement is NOT enabled"
+            echo "::warning::Branch protection is not properly configured. Please enable enforcement for administrators."
+          fi
