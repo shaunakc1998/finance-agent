@@ -1,242 +1,439 @@
-# Finance Agent with Advanced Price Forecasting and Financial Analysis
+# FinanceGPT - Advanced Financial Research Agent
 
 [![Python Lint and Test](https://github.com/yourusername/finance-agent/actions/workflows/python-lint-test.yml/badge.svg)](https://github.com/yourusername/finance-agent/actions/workflows/python-lint-test.yml)
 [![Docker Build](https://github.com/yourusername/finance-agent/actions/workflows/docker-build.yml/badge.svg)](https://github.com/yourusername/finance-agent/actions/workflows/docker-build.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-A comprehensive financial research agent with advanced price forecasting capabilities using machine learning models and in-depth financial analysis with vector search. Now with a modern web interface for easy interaction and API key management.
+A comprehensive financial research agent with advanced price forecasting capabilities using machine learning models and in-depth financial analysis with vector search. Features a modern web interface for easy interaction and API key management.
 
-## Features
+## 🚀 Quick Start
 
-- **Web Interface**: Modern, responsive web interface for easy interaction with the finance agent
-- **API Key Management**: Securely manage your API keys through the web interface
-- **Chat History**: Save and revisit your previous conversations
-- **Fundamental Analysis**: Get key financial metrics like P/E ratio, EPS, market cap, and more
-- **Technical Analysis**: Access technical indicators like RSI, SMA50, SMA200, and trend signals
-- **Investment Strategy**: Receive buy/sell/hold recommendations with confidence levels and price targets
-- **ETF Investment Plans**: Get SIP (Systematic Investment Plan) recommendations for ETFs
-- **Price Forecasting**: ML-based price predictions with confidence intervals and feature importance
-- **Financial Insights**: Comprehensive financial analysis including earnings call transcripts, SEC filings, and financial statements
-- **Vector Search**: Ask specific questions about a company's financials and get relevant information
-- **Docker Support**: Easy deployment with Docker and Docker Compose
-- **CI/CD Integration**: GitHub Actions workflows for testing, linting, and Docker image building
+> **🎯 Super Fast Setup**: Use our automated setup scripts!
+> - **Linux/macOS**: Run `./setup.sh`
+> - **Windows**: Run `setup.bat`
+> - **Need help?**: See [QUICK_START.md](QUICK_START.md)
 
-## Price Forecasting Module
+### Prerequisites
 
-The price forecasting module uses machine learning models to predict future price movements for stocks and ETFs. It provides:
+- **Python 3.9 - 3.11** (Required - Python 3.12+ may have compatibility issues with some dependencies)
+- **pip** (Python package manager)
+- **Git** (for cloning the repository)
 
-- Predicted price and return for a specified number of days in the future
-- Confidence intervals (90% and 95%) for the prediction
-- Forecast strength and direction (bullish/bearish)
-- Historical comparison with average returns
-- Feature importance analysis
-
-### Available Models
-
-- **Random Forest**: Good for capturing non-linear patterns (recommended default)
-- **Gradient Boost**: Often provides the best accuracy
-- **Ensemble**: Combines multiple models for better accuracy
-- **Linear**: Simple and interpretable
-- **Ridge**: Linear model with regularization
-- **Neural Net**: Deep learning approach
-- **ARIMA**: Time series statistical model
-
-## Usage
-
-### Web Interface
-
-Run the web application to interact with the financial research assistant through a modern web interface:
-
-```bash
-python web/app.py
-```
-
-Then open your browser and navigate to http://localhost:5001
-
-### Chat Agent (CLI)
-
-Alternatively, you can use the command-line interface:
-
-```bash
-python chat_agent.py
-```
-
-Example commands:
-- `forecast AAPL 10 days random_forest`
-- `forecast MSFT 20 days gradient_boost`
-- `fundamentals NVDA`
-- `technicals AMZN`
-- `strategy TSLA`
-- `etf SPY`
-- `financial insights AAPL What was the revenue growth?`
-- `financial insights MSFT What did the CEO say about AI?`
-
-### Training Models
-
-#### Train a Single Model
-
-To train a model for a specific stock:
-
-```bash
-python auto_train_model.py AAPL random_forest 10
-```
-
-Arguments:
-- Ticker symbol (required)
-- Model type (optional, default: random_forest)
-- Forecast days (optional, default: 10)
-
-#### Train Multiple Models
-
-To train models for a comprehensive list of stocks:
-
-```bash
-python run_training_background.py
-```
-
-This will start the training process in the background and log the output to a file in the `training_logs` directory.
-
-## Scripts
-
-- **chat_agent.py**: Main chat interface for interacting with the financial research assistant
-- **auto_train_model.py**: Script to check if a model exists for a stock and train it if it doesn't
-- **train_all_models.py**: Script to train models for a comprehensive list of popular stocks
-- **run_training_background.py**: Script to run the model training in the background
-- **test_financial_analysis.py**: Script to test the financial analysis module
-- **tools/financial_analysis.py**: Module for comprehensive financial analysis with vector search
-- **tools/fundamentals.py**: Module for fundamental analysis
-- **tools/technicals.py**: Module for technical analysis
-- **tools/strategy.py**: Module for investment strategy recommendations
-- **tools/forecast.py**: Module for price forecasting
-
-## Model Training
-
-The system automatically checks if a model exists for a stock when a forecast is requested. If no model is found, it will train one on the fly.
-
-For better performance, you can pre-train models for stocks you're interested in using the provided scripts.
-
-## Forecast Accuracy
-
-Forecasts are estimates with inherent uncertainty. The system provides confidence intervals to help understand the range of possible outcomes.
-
-For long-term investors, short-term forecasts are less relevant. Focus on fundamentals, dividend history, and compound growth potential over 5-10+ years.
-
-## Financial Analysis Module
-
-The financial analysis module provides comprehensive insights into a company's financial health and performance. It includes:
-
-- **Financial Statements**: Access to income statements, balance sheets, and cash flow statements
-- **Earnings Information**: EPS estimates vs. actual, upcoming earnings dates, and historical performance
-- **SEC Filings**: Recent 10-K, 10-Q, and 8-K filings with direct links
-- **Earnings Call Transcripts**: Text from recent earnings calls for qualitative analysis
-- **Key Financial Metrics**: Comprehensive set of valuation, profitability, growth, and debt metrics
-- **Vector Search**: Ask specific questions about a company's financials and get relevant information
-
-### Vector Database
-
-The system uses a vector database to store and retrieve financial information:
-
-- Financial data is processed and stored as vector embeddings
-- Semantic search allows for natural language queries about a company's financials
-- Information is automatically cached and refreshed weekly
-- All data is stored locally, with no external API dependencies for privacy and performance
-
-### Example Queries
-
-- `financial insights AAPL What was the revenue growth?`
-- `financial insights MSFT What did the CEO say about AI in the last earnings call?`
-- `financial insights AMZN What are the debt metrics?`
-- `financial insights TSLA What were the recent earnings?`
-
-## Testing
-
-To test the financial analysis module:
-
-```bash
-python test_financial_analysis.py AAPL
-```
-
-This will run a comprehensive test of all financial analysis features and save the results to the `test_results` directory.
-
-## Installation
-
-### From Source
-
-Clone the repository and install the dependencies:
+### 1. Clone the Repository
 
 ```bash
 git clone https://github.com/yourusername/finance-agent.git
 cd finance-agent
+```
+
+### 2. Create Virtual Environment (Recommended)
+
+```bash
+# Create virtual environment
+python -m venv venv
+
+# Activate virtual environment
+# On Windows:
+venv\Scripts\activate
+# On macOS/Linux:
+source venv/bin/activate
+```
+
+### 3. Install Dependencies
+
+```bash
+# Upgrade pip first
+pip install --upgrade pip
+
+# Install all dependencies
 pip install -r requirements.txt
 ```
 
-### Using Docker
+### 4. Set Up Environment Variables
+
+```bash
+# Copy the example environment file
+cp .env.example .env
+
+# Edit the .env file with your API keys
+# You can use any text editor, for example:
+nano .env
+```
+
+Add your API keys to the `.env` file:
+```env
+OPENAI_API_KEY=your_openai_api_key_here
+ALPHA_VANTAGE_API_KEY=your_alpha_vantage_api_key_here
+```
+
+### 5. Run the Application
+
+```bash
+# Start the web application
+python web/app.py
+```
+
+Open your browser and navigate to **http://localhost:5001**
+
+## 📋 System Requirements
+
+### Python Version
+- **Required**: Python 3.9, 3.10, or 3.11
+- **Not supported**: Python 3.12+ (due to dependency compatibility issues)
+
+### Operating System
+- **Windows**: Windows 10/11
+- **macOS**: macOS 10.15+
+- **Linux**: Ubuntu 18.04+, CentOS 7+, or equivalent
+
+### Hardware Requirements
+- **RAM**: Minimum 4GB, Recommended 8GB+
+- **Storage**: 2GB free space for dependencies and models
+- **CPU**: Any modern CPU (multi-core recommended for ML training)
+
+## 🔧 Detailed Installation Guide
+
+### Step 1: Check Python Version
+
+```bash
+python --version
+```
+
+If you don't have Python 3.9-3.11, install it:
+
+**Windows:**
+- Download from [python.org](https://www.python.org/downloads/)
+- Or use [pyenv-win](https://github.com/pyenv-win/pyenv-win)
+
+**macOS:**
+```bash
+# Using Homebrew
+brew install python@3.11
+
+# Using pyenv
+brew install pyenv
+pyenv install 3.11.7
+pyenv global 3.11.7
+```
+
+**Linux (Ubuntu/Debian):**
+```bash
+sudo apt update
+sudo apt install python3.11 python3.11-venv python3.11-pip
+```
+
+### Step 2: Clone and Setup
 
 ```bash
 # Clone the repository
 git clone https://github.com/yourusername/finance-agent.git
 cd finance-agent
 
-# Create a .env file with your API keys
+# Create virtual environment with specific Python version
+python3.11 -m venv venv
+
+# Activate virtual environment
+source venv/bin/activate  # macOS/Linux
+# OR
+venv\Scripts\activate     # Windows
+
+# Verify you're using the correct Python
+which python  # Should show path to venv
+python --version  # Should show Python 3.9-3.11
+```
+
+### Step 3: Install Dependencies
+
+```bash
+# Upgrade pip to latest version
+pip install --upgrade pip setuptools wheel
+
+# Install dependencies (this may take 5-10 minutes)
+pip install -r requirements.txt
+```
+
+### Step 4: Get API Keys
+
+#### OpenAI API Key (Required)
+1. Go to [OpenAI Platform](https://platform.openai.com)
+2. Sign up or log in
+3. Navigate to API Keys section
+4. Click "Create new secret key"
+5. Copy the key (starts with `sk-`)
+
+#### Alpha Vantage API Key (Required)
+1. Go to [Alpha Vantage](https://www.alphavantage.co/support/#api-key)
+2. Click "Get Free API Key"
+3. Fill out the form
+4. Check your email for the API key
+
+### Step 5: Configure Environment
+
+```bash
+# Copy example environment file
+cp .env.example .env
+
+# Edit with your preferred editor
+nano .env
+# OR
+code .env  # If you have VS Code
+# OR
+notepad .env  # Windows
+```
+
+Your `.env` file should look like:
+```env
+# OpenAI Configuration
+OPENAI_API_KEY=sk-your-openai-key-here
+
+# Alpha Vantage Configuration  
+ALPHA_VANTAGE_API_KEY=your-alpha-vantage-key-here
+
+# Optional: Flask Configuration
+FLASK_ENV=development
+FLASK_DEBUG=True
+```
+
+### Step 6: Run the Application
+
+```bash
+# Start the web server
+python web/app.py
+```
+
+You should see output like:
+```
+Database initialized at /path/to/finance-agent/web/database/finance_chat.db
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5001
+ * Running on http://[your-ip]:5001
+```
+
+Open your browser and go to **http://localhost:5001**
+
+## 🐛 Troubleshooting
+
+### Common Issues and Solutions
+
+#### 1. Python Version Issues
+**Error**: `ModuleNotFoundError` or compatibility warnings
+
+**Solution**: Ensure you're using Python 3.9-3.11:
+```bash
+python --version
+# If wrong version, create new venv with correct Python
+python3.11 -m venv venv_new
+source venv_new/bin/activate
+pip install -r requirements.txt
+```
+
+#### 2. Dependency Installation Failures
+**Error**: `Failed building wheel` or compilation errors
+
+**Solution**: Install build tools:
+```bash
+# Windows
+pip install --upgrade setuptools wheel
+
+# macOS
+xcode-select --install
+brew install cmake
+
+# Linux (Ubuntu/Debian)
+sudo apt install build-essential python3-dev
+```
+
+#### 3. PyTorch Installation Issues
+**Error**: PyTorch installation fails or is very slow
+
+**Solution**: Install PyTorch separately:
+```bash
+# CPU-only version (faster download)
+pip install torch==2.1.2 --index-url https://download.pytorch.org/whl/cpu
+
+# Then install other requirements
+pip install -r requirements.txt
+```
+
+#### 4. Memory Issues During Installation
+**Error**: `MemoryError` during pip install
+
+**Solution**: Install packages one by one:
+```bash
+pip install --no-cache-dir -r requirements.txt
+# OR install in smaller batches
+pip install Flask==3.0.0 openai==1.51.2 langchain==0.3.7
+pip install pandas==2.1.4 numpy==1.24.4 scikit-learn==1.3.2
+# Continue with remaining packages
+```
+
+#### 5. Port Already in Use
+**Error**: `Address already in use` on port 5001
+
+**Solution**: Use a different port:
+```bash
+# Edit web/app.py and change the last line to:
+app.run(debug=True, port=5002, host='0.0.0.0')
+```
+
+#### 6. API Key Issues
+**Error**: OpenAI or Alpha Vantage API errors
+
+**Solution**: 
+- Verify API keys are correct in `.env` file
+- Check API key quotas and billing
+- Test API keys independently:
+```bash
+python -c "
+import openai
+import os
+from dotenv import load_dotenv
+load_dotenv()
+client = openai.OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
+print('OpenAI API key is valid')
+"
+```
+
+#### 7. Database Issues
+**Error**: SQLite database errors
+
+**Solution**: Delete and recreate database:
+```bash
+rm -rf web/database/
+python web/app.py  # Will recreate database
+```
+
+### Performance Optimization
+
+#### For Faster Startup
+```bash
+# Install only essential packages for basic functionality
+pip install Flask==3.0.0 openai==1.51.2 langchain==0.3.7 langchain-openai==0.2.8 python-dotenv==1.0.0 requests==2.31.0
+```
+
+#### For Better ML Performance
+```bash
+# Install with GPU support (if you have NVIDIA GPU)
+pip install torch==2.1.2 --index-url https://download.pytorch.org/whl/cu118
+```
+
+## 🐳 Docker Installation (Alternative)
+
+If you prefer Docker or have dependency issues:
+
+```bash
+# Clone repository
+git clone https://github.com/yourusername/finance-agent.git
+cd finance-agent
+
+# Create .env file with your API keys
 cp .env.example .env
 # Edit .env with your API keys
 
 # Build and run with Docker Compose
 docker-compose up -d
+
+# View logs
+docker-compose logs -f
 ```
 
-Then open your browser and navigate to http://localhost:5001
+Access the application at **http://localhost:5001**
 
-For more deployment options, see [DEPLOYMENT.md](DEPLOYMENT.md).
+## 🌟 Features
 
-## Development Setup
+### Web Interface
+- **Modern UI**: Responsive design with glassmorphism effects
+- **Chat History**: Save and revisit previous conversations
+- **API Key Management**: Secure storage and management of API keys
+- **Guided Mode**: Step-by-step financial planning assistance
+- **Settings Page**: Easy configuration management
 
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/yourusername/finance-agent.git
-   cd finance-agent
-   ```
+### Financial Analysis
+- **Fundamental Analysis**: P/E ratio, EPS, market cap, financial ratios
+- **Technical Analysis**: RSI, SMA, MACD, Bollinger Bands
+- **Price Forecasting**: ML-based predictions with confidence intervals
+- **Investment Strategy**: Buy/sell/hold recommendations
+- **ETF Analysis**: Portfolio recommendations and SIP planning
+- **Economic Factors**: Macro-economic analysis and impact assessment
 
-2. Create a virtual environment:
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
+### Machine Learning Models
+- **Random Forest**: Non-linear pattern recognition
+- **Gradient Boost**: High accuracy predictions
+- **Ensemble Models**: Combined model predictions
+- **Neural Networks**: Deep learning approaches
+- **ARIMA**: Time series statistical modeling
 
-3. Install dependencies:
-   ```bash
-   pip install -r requirements.txt
-   ```
+## 📊 Usage Examples
 
-4. Set up environment variables:
-   ```bash
-   cp .env.example .env
-   # Edit .env with your API keys and configuration
-   ```
+### Web Interface
+1. Open http://localhost:5001
+2. Go to Settings and add your API keys
+3. Start chatting with the financial assistant
+4. Try guided mode for structured financial planning
 
-5. Run the web application:
-   ```bash
-   python web/app.py
-   ```
+### Example Queries
+- "Analyze AAPL stock fundamentals"
+- "What's the technical analysis for TSLA?"
+- "Create a diversified ETF portfolio for $10,000"
+- "Forecast NVDA price for next 20 days"
+- "Compare MSFT vs GOOGL investment potential"
 
-6. Open your browser and navigate to http://localhost:5001
+### CLI Usage (Alternative)
+```bash
+python chat_agent.py
+```
 
-## Contributing
+## 🤝 Contributing
 
-We welcome contributions to the Finance Agent project! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for details on how to contribute.
+We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
-### Code of Conduct
+### Development Setup
+```bash
+# Install development dependencies
+pip install -r requirements.txt
+pip install pytest black flake8
 
-This project adheres to a [Code of Conduct](CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code.
+# Run tests
+pytest
 
-### Branch Protection
+# Format code
+black .
 
-The `main` branch is protected. All changes must be made through pull requests that pass all checks and receive approval.
+# Lint code
+flake8 .
+```
 
-## Deployment
-
-For detailed deployment instructions, including Docker, Heroku, DigitalOcean, Railway, Render, AWS, and Google Cloud, see [DEPLOYMENT.md](DEPLOYMENT.md).
-
-## License
+## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🆘 Support
+
+If you encounter issues:
+
+1. Check the [Troubleshooting](#-troubleshooting) section above
+2. Search existing [GitHub Issues](https://github.com/yourusername/finance-agent/issues)
+3. Create a new issue with:
+   - Your Python version (`python --version`)
+   - Your operating system
+   - Full error message
+   - Steps to reproduce
+
+## 🔄 Updates
+
+To update to the latest version:
+
+```bash
+# Pull latest changes
+git pull origin main
+
+# Update dependencies
+pip install -r requirements.txt --upgrade
+
+# Restart the application
+python web/app.py
+```
+
+---
+
+**Happy Financial Analysis! 📈💰**
