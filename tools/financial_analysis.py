@@ -623,20 +623,32 @@ class FinancialAnalyzer:
                     
                     # Safely get values with fallbacks
                     try:
-                        revenue = float(latest_annual.get('Total Revenue', 0))
-                        transcript += f"Revenue: ${revenue:,.2f}\n"
+                        revenue_val = latest_annual.get('Total Revenue')
+                        if revenue_val is not None and pd.notna(revenue_val):
+                            revenue = float(revenue_val)
+                            transcript += f"Revenue: ${revenue:,.2f}\n"
+                        else:
+                            transcript += "Revenue: Not available\n"
                     except:
                         transcript += "Revenue: Not available\n"
                         
                     try:
-                        net_income = float(latest_annual.get('Net Income', 0))
-                        transcript += f"Net Income: ${net_income:,.2f}\n"
+                        net_income_val = latest_annual.get('Net Income')
+                        if net_income_val is not None and pd.notna(net_income_val):
+                            net_income = float(net_income_val)
+                            transcript += f"Net Income: ${net_income:,.2f}\n"
+                        else:
+                            transcript += "Net Income: Not available\n"
                     except:
                         transcript += "Net Income: Not available\n"
                         
                     try:
-                        eps = float(latest_annual.get('Basic EPS', 0))
-                        transcript += f"EPS: ${eps:,.2f}\n\n"
+                        eps_val = latest_annual.get('Basic EPS')
+                        if eps_val is not None and pd.notna(eps_val):
+                            eps = float(eps_val)
+                            transcript += f"EPS: ${eps:,.2f}\n\n"
+                        else:
+                            transcript += "EPS: Not available\n\n"
                     except:
                         transcript += "EPS: Not available\n\n"
                 except Exception as e:
@@ -1345,39 +1357,191 @@ def get_financial_insights(ticker: str, query: str = None) -> Dict:
         Dictionary with comprehensive financial insights
     """
     try:
-        # Get financial analysis
-        try:
-            analysis = get_financial_analysis(ticker)
-        except Exception as analysis_error:
-            logger.error(f"Primary analysis failed: {analysis_error}, trying fallback")
-            analysis = get_fallback_financial_data(ticker)
+        # Check if vector database exists for this ticker
+        db = SimpleVectorDB(f"{ticker}_financial")
+        vector_db_exists = len(db.vectors) > 0
         
-        # Store in vector database if not already present and we have full data
-        if not analysis.get('fallback_data', False):
+        # Check if this is an earnings call related query
+        earnings_keywords = ['earnings call', 'earnings', 'call', 'transcript', 'ceo', 'management', 'guidance', 'outlook', 'recent earning']
+        is_earnings_query = query and any(keyword in query.lower() for keyword in earnings_keywords)
+        
+        # If no vector database exists, create one
+        if not vector_db_exists:
+            logger.info(f"No vector database found for {ticker}, creating one...")
             try:
-                db = SimpleVectorDB(f"{ticker}_financial")
-                if not db.vectors:
+                # Get financial analysis first
+                analysis = get_financial_analysis(ticker)
+                
+                # Store in vector database
+                if not analysis.get('fallback_data', False):
                     store_financial_analysis_in_vector_db(ticker)
-            except Exception as vector_error:
-                logger.error(f"Vector database operations failed: {vector_error}")
-        
-        # If query is provided, search for specific information
-        if query:
+                    # Reload the database after storing
+                    db = SimpleVectorDB(f"{ticker}_financial")
+                    vector_db_exists = len(db.vectors) > 0
+                    logger.info(f"Created vector database for {ticker} with {len(db.vectors)} entries")
+            except Exception as creation_error:
+                logger.error(f"Failed to create vector database for {ticker}: {creation_error}")
+                # Fall back to regular analysis
+                try:
+                    analysis = get_financial_analysis(ticker)
+                except Exception as analysis_error:
+                    logger.error(f"Primary analysis failed: {analysis_error}, trying fallback")
+                    analysis = get_fallback_financial_data(ticker)
+        else:
+            # Get basic analysis
             try:
-                search_results = search_financial_analysis(ticker, query)
+                analysis = get_financial_analysis(ticker)
+            except Exception as analysis_error:
+                logger.error(f"Primary analysis failed: {analysis_error}, trying fallback")
+                analysis = get_fallback_financial_data(ticker)
+        
+        # If this is an earnings query and we have a vector database, check if we have transcript data
+        if is_earnings_query and vector_db_exists:
+            # Check if we have any earnings transcript data in the vector database
+            transcript_entries = [entry for entry in db.metadata if entry.get('type') == 'earnings_transcript']
+            
+            if not transcript_entries:
+                logger.info(f"No earnings transcript found in vector database for {ticker}, attempting to fetch and store...")
+                try:
+                    # Try to get earnings call transcript directly
+                    analyzer = FinancialAnalyzer(ticker)
+                    transcript = analyzer.get_earnings_call_transcript()
+                    
+                    if transcript and len(transcript.strip()) > 100:  # Make sure we got substantial content
+                        logger.info(f"Successfully retrieved earnings transcript for {ticker}, storing in vector database...")
+                        
+                        # Split transcript into chunks and store in vector database
+                        chunk_size = 1000  # characters
+                        chunks = [transcript[i:i+chunk_size] for i in range(0, len(transcript), chunk_size)]
+                        
+                        for i, chunk in enumerate(chunks):
+                            chunk_vector = generate_embeddings(chunk)
+                            db.add_text(chunk, chunk_vector, {
+                                'ticker': ticker,
+                                'type': 'earnings_transcript',
+                                'chunk': i,
+                                'total_chunks': len(chunks),
+                                'date': datetime.now().strftime('%Y-%m-%d'),
+                                'source': 'auto_retrieved'
+                            })
+                        
+                        logger.info(f"Stored {len(chunks)} transcript chunks for {ticker} in vector database")
+                        
+                        # Reload the database to include new transcript data
+                        db = SimpleVectorDB(f"{ticker}_financial")
+                    else:
+                        logger.warning(f"No substantial earnings transcript content found for {ticker}")
+                        
+                except Exception as transcript_error:
+                    logger.error(f"Failed to retrieve and store earnings transcript for {ticker}: {transcript_error}")
+        
+        # If query is provided, search for specific information in vector database
+        if query and vector_db_exists:
+            try:
+                # Check if this is an earnings call related query
+                earnings_keywords = ['earnings call', 'earnings', 'call', 'transcript', 'ceo', 'management', 'guidance', 'outlook', 'recent earning']
+                is_earnings_query = any(keyword in query.lower() for keyword in earnings_keywords)
+                
+                # Search the vector database
+                search_results = search_financial_analysis(ticker, query, top_k=10)
+                
+                # Filter and prioritize earnings call transcript results if it's an earnings query
+                if is_earnings_query and search_results:
+                    # Prioritize earnings transcript results
+                    transcript_results = [r for r in search_results if r.get('metadata', {}).get('type') == 'earnings_transcript']
+                    other_results = [r for r in search_results if r.get('metadata', {}).get('type') != 'earnings_transcript']
+                    
+                    # Combine with transcript results first
+                    prioritized_results = transcript_results + other_results
+                    search_results = prioritized_results[:5]  # Keep top 5
+                
                 # Add search results to analysis
                 analysis['search_results'] = search_results
+                analysis['query_processed'] = query
+                analysis['is_earnings_query'] = is_earnings_query
+                
+                # If we found earnings transcript content, extract and format it
+                if is_earnings_query and search_results:
+                    transcript_content = []
+                    for result in search_results:
+                        if result.get('metadata', {}).get('type') == 'earnings_transcript':
+                            transcript_content.append({
+                                'text': result['text'],
+                                'similarity': result['similarity'],
+                                'chunk': result.get('metadata', {}).get('chunk', 0)
+                            })
+                    
+                    if transcript_content:
+                        # Sort by chunk order to maintain narrative flow
+                        transcript_content.sort(key=lambda x: x.get('chunk', 0))
+                        
+                        # Combine transcript chunks
+                        combined_transcript = "\n\n".join([chunk['text'] for chunk in transcript_content])
+                        
+                        analysis['earnings_call_content'] = {
+                            'transcript_found': True,
+                            'content': combined_transcript,
+                            'chunks_found': len(transcript_content),
+                            'avg_similarity': sum([chunk['similarity'] for chunk in transcript_content]) / len(transcript_content)
+                        }
+                    else:
+                        # No transcript content found, but we have other relevant info
+                        analysis['earnings_call_content'] = {
+                            'transcript_found': False,
+                            'message': f"No earnings call transcript found in vector database for {ticker}. Showing other relevant financial information.",
+                            'alternative_content': search_results[:3]  # Show top 3 alternative results
+                        }
+                else:
+                    # Not an earnings query, just show search results
+                    analysis['search_summary'] = {
+                        'results_found': len(search_results),
+                        'top_result': search_results[0] if search_results else None
+                    }
+                    
             except Exception as search_error:
                 logger.error(f"Search failed: {search_error}")
                 analysis['search_error'] = str(search_error)
-                
-                # Add a direct answer about the query if possible
-                if 'revenue' in query.lower() and 'growth' in query.lower():
-                    if 'annual_revenue' in analysis and 'quarterly_revenue' in analysis:
-                        analysis['direct_answer'] = {
-                            'query': query,
-                            'answer': f"The most recent annual revenue was ${analysis['annual_revenue']:,.2f} and quarterly revenue was ${analysis['quarterly_revenue']:,.2f}."
+        elif query and not vector_db_exists:
+            # No vector database available, provide a helpful message
+            analysis['search_message'] = f"Vector database not available for {ticker}. Please wait while we create one, then try your query again."
+            
+            # Try to provide a direct answer for common queries
+            if 'revenue' in query.lower() and 'growth' in query.lower():
+                if 'annual_revenue' in analysis and 'quarterly_revenue' in analysis:
+                    analysis['direct_answer'] = {
+                        'query': query,
+                        'answer': f"The most recent annual revenue was ${analysis.get('annual_revenue', 0):,.2f} and quarterly revenue was ${analysis.get('quarterly_revenue', 0):,.2f}."
+                    }
+            elif any(keyword in query.lower() for keyword in ['earnings call', 'earnings', 'call', 'transcript']):
+                # Try to get earnings call transcript directly
+                try:
+                    analyzer = FinancialAnalyzer(ticker)
+                    transcript = analyzer.get_earnings_call_transcript()
+                    if transcript:
+                        analysis['earnings_call_content'] = {
+                            'transcript_found': True,
+                            'content': transcript[:2000] + "..." if len(transcript) > 2000 else transcript,  # Truncate if too long
+                            'source': 'direct_retrieval',
+                            'note': 'Retrieved directly as vector database was not available'
                         }
+                    else:
+                        analysis['earnings_call_content'] = {
+                            'transcript_found': False,
+                            'message': f"No earnings call transcript available for {ticker}."
+                        }
+                except Exception as transcript_error:
+                    logger.error(f"Direct transcript retrieval failed: {transcript_error}")
+                    analysis['earnings_call_content'] = {
+                        'transcript_found': False,
+                        'error': f"Unable to retrieve earnings call transcript: {str(transcript_error)}"
+                    }
+        
+        # Add metadata about vector database status
+        analysis['vector_db_status'] = {
+            'exists': vector_db_exists,
+            'entries': len(db.vectors) if vector_db_exists else 0,
+            'ticker': ticker
+        }
         
         return analysis
     except Exception as e:

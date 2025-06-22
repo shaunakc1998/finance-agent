@@ -5,35 +5,59 @@ import time
 import functools
 import json
 from datetime import datetime, timedelta
-from typing import Dict, Any, Optional, List, Callable
+from typing import Dict, Optional, Callable
 import re
 from colorama import Fore, Style, init
 from dotenv import load_dotenv
 from langchain_openai import ChatOpenAI
 from langchain.agents import AgentExecutor, create_openai_functions_agent
-from langchain.agents.agent_types import AgentType
 from langchain_core.runnables.history import RunnableWithMessageHistory
 from langchain_community.chat_message_histories import ChatMessageHistory
 from langchain_core.tools import tool
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
-from langchain_core.callbacks.manager import CallbackManagerForLLMRun
-from langchain_core.outputs import LLMResult
 from langchain_community.cache import InMemoryCache
 from langchain.globals import set_llm_cache
 from tools.fundamentals import get_fundamentals
 from tools.technicals import get_technicals
 from tools.strategy import make_strategy_decision
 from tools.forecast import get_forecast, train_model
-from tools.financial_analysis import get_financial_insights, store_financial_analysis_in_vector_db, get_industry_comparison
-from tools.portfolio import get_optimal_portfolio, analyze_existing_portfolio, get_efficient_frontier, get_portfolio_rebalance, stress_test_portfolio
-from tools.user_profile import create_user_profile, get_user_profile, update_user_preferences, add_investment_goal, get_personalized_recommendations
-from tools.economic_factors import get_economic_indicators, get_sector_performance, analyze_interest_rate_sensitivity, analyze_inflation_sensitivity, get_macroeconomic_context
+from tools.financial_analysis import (get_financial_insights,
+                                      get_industry_comparison)
+from tools.portfolio import (get_optimal_portfolio, analyze_existing_portfolio,
+                             get_portfolio_rebalance, stress_test_portfolio)
+from tools.user_profile import (create_user_profile, update_user_preferences,
+                                add_investment_goal,
+                                get_personalized_recommendations)
+from tools.economic_factors import (get_economic_indicators,
+                                    get_sector_performance,
+                                    analyze_interest_rate_sensitivity,
+                                    analyze_inflation_sensitivity,
+                                    get_macroeconomic_context)
 
 # Set up LLM caching to avoid redundant API calls
 set_llm_cache(InMemoryCache())
 
 # Load .env variables
 load_dotenv()
+
+# Ensure we have a valid OpenAI API key
+openai_api_key = os.getenv("OPENAI_API_KEY")
+if not openai_api_key or openai_api_key.startswith("your_"):
+    # Try loading from different possible .env locations
+    import os.path
+    possible_env_paths = [
+        ".env",
+        "../.env",
+        os.path.join(os.path.dirname(__file__), ".env"),
+        os.path.join(os.path.dirname(__file__), "..", ".env")
+    ]
+    
+    for env_path in possible_env_paths:
+        if os.path.exists(env_path):
+            load_dotenv(env_path, override=True)
+            openai_api_key = os.getenv("OPENAI_API_KEY")
+            if openai_api_key and not openai_api_key.startswith("your_"):
+                break
 
 # Initialize colorama for colored terminal output
 init(autoreset=True)
@@ -373,7 +397,7 @@ def etf_investment_tool(ticker: str) -> str:
 
 # Initialize the LLM (OpenAI GPT-4o) with streaming and optimized settings
 llm = ChatOpenAI(
-    model="gpt-4.1",
+    model="gpt-4o-mini",
     temperature=0,
     openai_api_key=os.getenv("OPENAI_API_KEY"),
     streaming=True,
@@ -386,40 +410,97 @@ message_history = ChatMessageHistory()
 
 # Create an optimized prompt template
 prompt = ChatPromptTemplate.from_messages([
-    ("system", """You are the Finance Planning Agent - a structured financial research assistant focused on long-term investment. You provide accurate information about stocks and ETFs using a clear, organized approach.
+    ("system", """You are the Finance Planning Agent - a user-friendly financial research assistant focused on making investing accessible to everyone. You provide accurate information about stocks and ETFs using clear, jargon-free explanations.
 
-    # COMMUNICATION STRUCTURE
-    All your responses must follow this tag-based structure:
-    - <thinking> for your reasoning, analysis, and planning
-    - <action> for using financial tools and retrieving data
-    - <conclusion> for your final investment advice and summary
+    # RESPONSE STRUCTURE
+    Your responses must be clearly separated into two distinct sections:
 
-    # TAG FLOW RULES
-    You must follow this tag flow exactly:
-    -> <thinking> -> <action> -> <thinking> -> <action> -> ... -> <conclusion>
+    ## 🧠 THINKING
+    This section shows your reasoning process and is labeled with "🧠 THINKING" header:
+    - Outline your analysis strategy step by step
+    - Explain which financial tools you'll use and why
+    - Show your reasoning for each decision
+    - Analyze data as you receive it
+    - Plan your next steps based on findings
+    - Be thorough in your thought process
 
-    # TAG GUIDELINES
-    
-    <thinking>
-    - Start with a numbered plan outlining your analysis strategy
-    - Explain your reasoning in natural, human-like language
-    - Justify which financial tools you'll use and why
-    - Analyze results from previous actions before proceeding
-    - Be thorough but concise
-    
-    <action>
-    - Use exactly one financial tool per <action> block
-    - Specify the tool name and parameters clearly
-    - Format as: "Using [tool_name] with parameters: [parameters]"
-    - Example: "Using fundamentals_tool with parameters: ticker='AAPL'"
-    
-    <conclusion>
-    - Provide a clear, actionable investment recommendation
-    - Summarize key findings from your analysis
-    - Include relevant metrics that support your conclusion
+    ## 📊 FINAL ANALYSIS
+    This section contains your final output labeled with "📊 FINAL ANALYSIS" header:
+    - Present your investment recommendation clearly
+    - Summarize key findings and supporting metrics
+    - Provide actionable insights for the user
+    - Include relevant financial data and ratios
     - Acknowledge limitations and risks
     - Format numbers clearly (e.g., $1.2B not $1,200,000,000)
     - Emphasize long-term perspective (5-10+ years)
+
+    # USER-FRIENDLY COMMUNICATION GUIDELINES
+
+    ## Financial Terms Explanation
+    ALWAYS explain financial terms in simple language when you first use them:
+    - **EPS (Earnings Per Share)**: How much profit the company made per share of stock (higher is generally better)
+    - **P/E Ratio (Price-to-Earnings)**: How much investors pay for each dollar of earnings (lower can mean better value, but compare within industry)
+    - **Market Cap**: Total value of all company shares (Large: >$10B, Mid: $2-10B, Small: <$2B)
+    - **Dividend Yield**: Annual dividend payment as % of stock price (income for investors)
+    - **Revenue**: Total money the company brought in from sales
+    - **Profit Margin**: How much profit the company keeps from each dollar of sales
+    - **Beta**: How much the stock moves compared to the overall market (1.0 = same as market, >1.0 = more volatile)
+    - **RSI**: Momentum indicator (>70 = potentially overvalued, <30 = potentially undervalued)
+    - **Moving Averages**: Average price over time periods (helps identify trends)
+
+    ## Context and Comparisons
+    ALWAYS provide context for financial metrics:
+    - Compare P/E ratios to industry averages (e.g., "P/E of 25 vs industry average of 20")
+    - Explain if numbers are good/bad/average for the sector
+    - Use analogies when helpful (e.g., "Think of P/E ratio like paying 25 years of current earnings to buy the whole company")
+    - Provide ranges for what's considered good/bad (e.g., "P/E ratios between 15-25 are typically reasonable for tech companies")
+
+    ## Investment Recommendations
+    Make recommendations clear and actionable:
+    - Use simple language: "Good to buy" instead of just "BUY"
+    - Explain WHY in plain terms
+    - Provide specific next steps
+    - Include risk warnings in understandable terms
+    - Suggest position sizing (e.g., "Consider starting with 5-10% of your portfolio")
+
+    ## Beginner-Friendly Features
+    - Start with the most important information first
+    - Use bullet points for easy scanning
+    - Include "What this means for you" sections
+    - Provide educational context without being condescending
+    - Suggest further learning resources when appropriate
+
+    # EXAMPLE FORMAT:
+    
+    🧠 THINKING
+    I need to analyze ServiceNow (NOW) by gathering their recent earnings call information. My strategy will be:
+    1. First, I'll use the financial_insights_tool to search for recent earnings call data
+    2. Then I'll get fundamental metrics using fundamentals_tool
+    3. Finally, I'll analyze technical indicators with technicals_tool
+    
+    Let me start with the earnings call search since that's specifically what the user requested.
+
+    [Use financial_insights_tool here]
+
+    Now I can see the earnings data shows... [analyze results]
+    Next, I should get the fundamental metrics to provide context...
+
+    [Continue with analysis]
+
+    📊 FINAL ANALYSIS
+    Based on my analysis of ServiceNow's recent earnings call and financial metrics:
+
+    **Investment Recommendation:** [Clear recommendation]
+    **Key Findings:**
+    - [Finding 1 with supporting data]
+    - [Finding 2 with supporting data]
+    
+    **Financial Highlights:**
+    - Revenue: $X.X billion
+    - EPS: $X.XX
+    - Growth Rate: X.X%
+    
+    **Conclusion:** [Final actionable advice]
     
     # TOOL SELECTION GUIDELINES
     
@@ -755,6 +836,296 @@ def investment_goal_tool(user_id: str, name: str, target_amount: float, target_d
         return str(result)
     except Exception as e:
         return str({"error": f"Error adding investment goal: {str(e)}", "user_id": user_id})
+
+@tool
+@rate_limit(calls_per_minute=5)
+def savings_goal_calculator_tool(goal_name: str, target_amount: float, target_date: str, 
+                                current_amount: float = 0.0, expected_return: float = 7.0,
+                                risk_tolerance: str = "moderate") -> str:
+    """Comprehensive savings goal calculator with detailed planning and recommendations.
+    
+    This tool provides detailed calculations for reaching a savings goal, including:
+    - Monthly savings needed
+    - Investment strategy recommendations
+    - Risk analysis and scenarios
+    - Timeline optimization
+    - Educational explanations for beginners
+    
+    Args:
+        goal_name: Name of the goal (e.g., "Emergency Fund", "House Down Payment", "Retirement")
+        target_amount: Target amount to reach (e.g., 50000 for $50,000)
+        target_date: Target date to reach the goal (YYYY-MM-DD format)
+        current_amount: Current amount already saved (default: 0)
+        expected_return: Expected annual return percentage (default: 7.0 for 7%)
+        risk_tolerance: Risk tolerance level ("conservative", "moderate", "aggressive")
+    """
+    try:
+        from datetime import datetime, timedelta
+        import math
+        
+        # Parse target date
+        target_date_obj = datetime.strptime(target_date, '%Y-%m-%d')
+        current_date = datetime.now()
+        
+        # Calculate time to goal
+        time_to_goal = target_date_obj - current_date
+        years_to_goal = time_to_goal.days / 365.25
+        months_to_goal = time_to_goal.days / 30.44
+        
+        if years_to_goal <= 0:
+            return str({
+                "error": "Target date must be in the future",
+                "target_date": target_date,
+                "current_date": current_date.strftime('%Y-%m-%d')
+            })
+        
+        # Calculate amount needed
+        amount_needed = target_amount - current_amount
+        
+        # Adjust expected return based on risk tolerance and time horizon
+        risk_adjustments = {
+            "conservative": {"return": 4.0, "volatility": 5.0},
+            "moderate": {"return": 7.0, "volatility": 12.0},
+            "aggressive": {"return": 10.0, "volatility": 18.0}
+        }
+        
+        # Use provided return or adjust based on risk tolerance
+        if expected_return == 7.0:  # Default value, adjust based on risk
+            adjusted_return = risk_adjustments[risk_tolerance]["return"]
+        else:
+            adjusted_return = expected_return
+        
+        volatility = risk_adjustments[risk_tolerance]["volatility"]
+        
+        # Calculate monthly savings needed (with compound interest)
+        monthly_return = adjusted_return / 100 / 12
+        
+        if monthly_return > 0:
+            # Future value of current amount
+            future_value_current = current_amount * ((1 + monthly_return) ** (months_to_goal))
+            
+            # Amount still needed after growth of current savings
+            remaining_needed = target_amount - future_value_current
+            
+            if remaining_needed <= 0:
+                monthly_savings_needed = 0
+            else:
+                # Monthly payment needed for annuity
+                monthly_savings_needed = remaining_needed / (((1 + monthly_return) ** months_to_goal - 1) / monthly_return)
+        else:
+            # No growth scenario
+            monthly_savings_needed = amount_needed / months_to_goal
+        
+        # Calculate scenarios
+        scenarios = {}
+        
+        # Conservative scenario (lower return)
+        conservative_return = max(2.0, adjusted_return - 3.0)
+        conservative_monthly_return = conservative_return / 100 / 12
+        if conservative_monthly_return > 0:
+            conservative_future_current = current_amount * ((1 + conservative_monthly_return) ** months_to_goal)
+            conservative_remaining = target_amount - conservative_future_current
+            if conservative_remaining <= 0:
+                conservative_monthly = 0
+            else:
+                conservative_monthly = conservative_remaining / (((1 + conservative_monthly_return) ** months_to_goal - 1) / conservative_monthly_return)
+        else:
+            conservative_monthly = amount_needed / months_to_goal
+        
+        scenarios["conservative"] = {
+            "expected_return": conservative_return,
+            "monthly_savings": conservative_monthly,
+            "description": "Lower return scenario - plan for this to be safe"
+        }
+        
+        # Optimistic scenario (higher return)
+        optimistic_return = adjusted_return + 2.0
+        optimistic_monthly_return = optimistic_return / 100 / 12
+        optimistic_future_current = current_amount * ((1 + optimistic_monthly_return) ** months_to_goal)
+        optimistic_remaining = target_amount - optimistic_future_current
+        if optimistic_remaining <= 0:
+            optimistic_monthly = 0
+        else:
+            optimistic_monthly = optimistic_remaining / (((1 + optimistic_monthly_return) ** months_to_goal - 1) / optimistic_monthly_return)
+        
+        scenarios["optimistic"] = {
+            "expected_return": optimistic_return,
+            "monthly_savings": optimistic_monthly,
+            "description": "Higher return scenario - possible with good market performance"
+        }
+        
+        # Investment recommendations based on time horizon and risk tolerance
+        investment_recommendations = {}
+        
+        if years_to_goal < 2:
+            # Short-term: Focus on safety
+            investment_recommendations = {
+                "primary_strategy": "High-yield savings account or CDs",
+                "recommended_allocation": {
+                    "cash_equivalents": 80,
+                    "short_term_bonds": 20,
+                    "stocks": 0
+                },
+                "suggested_accounts": ["High-yield savings", "CDs", "Money market"],
+                "explanation": "For goals less than 2 years away, safety is more important than growth. You don't want to risk losing money right before you need it."
+            }
+        elif years_to_goal < 5:
+            # Medium-term: Balanced approach
+            if risk_tolerance == "conservative":
+                allocation = {"cash_equivalents": 40, "bonds": 50, "stocks": 10}
+            elif risk_tolerance == "moderate":
+                allocation = {"cash_equivalents": 20, "bonds": 50, "stocks": 30}
+            else:
+                allocation = {"cash_equivalents": 10, "bonds": 40, "stocks": 50}
+            
+            investment_recommendations = {
+                "primary_strategy": "Balanced portfolio with bonds and some stocks",
+                "recommended_allocation": allocation,
+                "suggested_accounts": ["Taxable brokerage", "Roth IRA (if eligible)"],
+                "suggested_etfs": ["AGG (bonds)", "VTI (total stock market)", "HYSA (cash)"],
+                "explanation": "For medium-term goals, you can take some risk for better returns, but still need stability as you get closer to your goal."
+            }
+        else:
+            # Long-term: Growth focused
+            if risk_tolerance == "conservative":
+                allocation = {"cash_equivalents": 10, "bonds": 40, "stocks": 50}
+            elif risk_tolerance == "moderate":
+                allocation = {"cash_equivalents": 5, "bonds": 25, "stocks": 70}
+            else:
+                allocation = {"cash_equivalents": 5, "bonds": 15, "stocks": 80}
+            
+            investment_recommendations = {
+                "primary_strategy": "Growth-focused portfolio with mostly stocks",
+                "recommended_allocation": allocation,
+                "suggested_accounts": ["401(k)", "IRA", "Taxable brokerage"],
+                "suggested_etfs": ["VTI (total stock market)", "VTIAX (international)", "AGG (bonds)"],
+                "explanation": "For long-term goals, you can afford more risk for potentially higher returns. Stocks historically outperform other investments over long periods."
+            }
+        
+        # Goal-specific advice
+        goal_specific_advice = {}
+        goal_lower = goal_name.lower()
+        
+        if "emergency" in goal_lower or "fund" in goal_lower:
+            goal_specific_advice = {
+                "target_months": "3-6 months of expenses",
+                "priority": "High - This should be your first financial goal",
+                "account_type": "High-yield savings account for easy access",
+                "special_considerations": [
+                    "Keep this money easily accessible",
+                    "Don't invest emergency funds in stocks",
+                    "Start with $1,000 if the full amount seems overwhelming"
+                ]
+            }
+        elif "house" in goal_lower or "home" in goal_lower or "down" in goal_lower:
+            goal_specific_advice = {
+                "typical_down_payment": "10-20% of home price",
+                "priority": "Medium-High - Important for building wealth",
+                "account_type": "Mix of savings and conservative investments",
+                "special_considerations": [
+                    "Don't forget closing costs (2-5% of home price)",
+                    "Consider first-time homebuyer programs",
+                    "Factor in moving costs and immediate home expenses"
+                ]
+            }
+        elif "retirement" in goal_lower:
+            goal_specific_advice = {
+                "rule_of_thumb": "Save 10-15% of income for retirement",
+                "priority": "High - Start as early as possible",
+                "account_type": "401(k), IRA, Roth IRA",
+                "special_considerations": [
+                    "Take advantage of employer 401(k) matching",
+                    "Consider Roth vs Traditional IRA based on current vs future tax rates",
+                    "The earlier you start, the more compound interest helps"
+                ]
+            }
+        elif "vacation" in goal_lower or "travel" in goal_lower:
+            goal_specific_advice = {
+                "typical_cost": "Varies widely by destination and style",
+                "priority": "Low-Medium - After emergency fund and retirement",
+                "account_type": "High-yield savings or short-term investments",
+                "special_considerations": [
+                    "Consider travel rewards credit cards",
+                    "Book flights and hotels in advance for better prices",
+                    "Factor in all costs: flights, hotels, food, activities, insurance"
+                ]
+            }
+        elif "education" in goal_lower or "college" in goal_lower:
+            goal_specific_advice = {
+                "typical_cost": "$10,000-$50,000+ per year depending on school type",
+                "priority": "High if you have children",
+                "account_type": "529 Education Savings Plan for tax advantages",
+                "special_considerations": [
+                    "529 plans offer tax-free growth for education expenses",
+                    "Consider age-based investment options that get more conservative over time",
+                    "Don't sacrifice your retirement savings for children's education"
+                ]
+            }
+        
+        # Calculate progress milestones
+        milestones = []
+        milestone_percentages = [25, 50, 75, 90]
+        for percentage in milestone_percentages:
+            milestone_amount = target_amount * (percentage / 100)
+            milestone_date = current_date + timedelta(days=time_to_goal.days * (percentage / 100))
+            milestones.append({
+                "percentage": percentage,
+                "amount": milestone_amount,
+                "target_date": milestone_date.strftime('%Y-%m-%d'),
+                "description": f"Reach {percentage}% of your goal"
+            })
+        
+        # Educational content for beginners
+        educational_content = {
+            "key_concepts": {
+                "compound_interest": "Your money earns returns, and those returns earn returns too. This is why starting early is so powerful.",
+                "dollar_cost_averaging": "Investing the same amount regularly, regardless of market conditions. This reduces the impact of market volatility.",
+                "diversification": "Don't put all your eggs in one basket. Spread investments across different types of assets.",
+                "risk_vs_return": "Generally, higher potential returns come with higher risk. Your time horizon helps determine how much risk you can take."
+            },
+            "beginner_tips": [
+                "Start with whatever amount you can afford, even if it's small",
+                "Automate your savings so you don't have to think about it",
+                "Review and adjust your plan every 6-12 months",
+                "Don't panic if investments go down - stay focused on your long-term goal"
+            ]
+        }
+        
+        # Compile comprehensive result
+        result = {
+            "goal_summary": {
+                "goal_name": goal_name,
+                "target_amount": target_amount,
+                "current_amount": current_amount,
+                "amount_needed": amount_needed,
+                "target_date": target_date,
+                "years_to_goal": round(years_to_goal, 1),
+                "months_to_goal": round(months_to_goal, 1)
+            },
+            "savings_plan": {
+                "monthly_savings_needed": round(monthly_savings_needed, 2),
+                "expected_annual_return": adjusted_return,
+                "risk_tolerance": risk_tolerance,
+                "total_contributions_needed": round(monthly_savings_needed * months_to_goal, 2),
+                "growth_from_current_savings": round((current_amount * ((1 + monthly_return) ** months_to_goal)) - current_amount, 2) if monthly_return > 0 else 0
+            },
+            "scenarios": scenarios,
+            "investment_recommendations": investment_recommendations,
+            "goal_specific_advice": goal_specific_advice,
+            "progress_milestones": milestones,
+            "educational_content": educational_content,
+            "next_steps": [
+                f"Set up automatic transfer of ${round(monthly_savings_needed, 2)} per month",
+                "Choose appropriate investment accounts based on recommendations",
+                "Review progress quarterly and adjust if needed",
+                "Consider increasing savings amount when income grows"
+            ]
+        }
+        
+        return str(result)
+        
+    except Exception as e:
+        return str({"error": f"Error calculating savings goal: {str(e)}", "goal_name": goal_name})
 
 @tool
 @rate_limit(calls_per_minute=5)
@@ -1276,108 +1647,93 @@ def format_agent_response(response):
     
     return response
 
-# Command-line chat loop
-if __name__ == "__main__":
-    print(f"\n{Fore.CYAN}{'='*50}{Style.RESET_ALL}")
-    print(f"{Fore.CYAN}💬 Welcome to your Financial Research Agent{Style.RESET_ALL}")
-    print(f"{Fore.YELLOW}Type 'exit' to quit{Style.RESET_ALL}")
-    print(f"{Fore.CYAN}{'='*50}{Style.RESET_ALL}\n")
+# Store chat history
+store = {}
+
+
+def get_session_history(session_id: str) -> ChatMessageHistory:
+    """
+    Returns the chat history for a given session ID.
+    If the session ID does not exist, a new ChatMessageHistory is created.
+    """
+    if session_id not in store:
+        store[session_id] = ChatMessageHistory()
+    return store[session_id]
+
+
+def main():
+    """Main function to run the chat agent"""
+    print(Fore.CYAN + Style.BRIGHT + "Welcome to the Finance Agent!")
+    print(Fore.CYAN + "I am your personal financial planning assistant.")
+    print(Fore.CYAN + "I can help you with company research, ETF analysis, and more.")
+
+    # Get or create a session ID
+    session_id = "user_session"  # Simplified for CLI
 
     while True:
-        user_input = input(f"{Fore.GREEN}You: {Style.RESET_ALL}")
-        if user_input.lower() in ["exit", "quit"]:
-            print(f"\n{Fore.CYAN}👋 Goodbye!{Style.RESET_ALL}\n")
+        if not get_session_history(session_id).messages:
+            print(Fore.GREEN + "\nWhat would you like to research today?")
+            print("1. A specific company (e.g., AAPL, MSFT)")
+            print("2. An ETF (e.g., VOO, QQQ)")
+            print("3. My investment portfolio")
+            print("4. General market overview")
+
+            choice = input(Fore.YELLOW + "> " + Style.RESET_ALL)
+
+            if choice == "1":
+                company = input(Fore.GREEN +
+                                "Please enter the company's ticker symbol: " +
+                                Style.RESET_ALL)
+                user_message = f"Tell me about {company.upper()}"
+            elif choice == "2":
+                etf = input(Fore.GREEN +
+                            "Please enter the ETF's ticker symbol: " +
+                            Style.RESET_ALL)
+                user_message = f"Tell me about ETF {etf.upper()}"
+            elif choice == "3":
+                # For portfolio analysis, we can start with a general prompt
+                # The agent will likely ask for tickers and weights
+                user_message = "Analyze my investment portfolio"
+            elif choice == "4":
+                user_message = "What is the current market overview?"
+            else:
+                user_message = choice  # Let the user type a free-form query
+        else:
+            user_message = input(Fore.YELLOW + "You: " + Style.RESET_ALL)
+
+        if user_message.lower() in ["exit", "quit"]:
+            print(Fore.RED + "Goodbye!")
             break
 
-        print(f"{Fore.YELLOW}Processing...{Style.RESET_ALL}")
-        
+        # Add a progress indicator
+        print(Fore.BLUE + "\nThinking...")
+
         try:
-            # Create a custom callback handler to intercept and format tool outputs
-            class ToolOutputFormatter:
-                def __init__(self):
-                    self.tool_outputs = []
-                
-                def on_tool_start(self, tool_name, input_str):
-                    # Show which tool is being used and why
-                    tool_descriptions = {
-                        "fundamentals_tool": "Getting fundamental financial data",
-                        "technicals_tool": "Analyzing technical indicators",
-                        "strategy_tool": "Formulating investment strategy",
-                        "etf_investment_tool": "Creating ETF investment plan",
-                        "forecast_tool": "Generating price forecast",
-                        "train_forecast_model": "Training a new forecasting model",
-                        "financial_insights_tool": "Retrieving comprehensive financial insights",
-                        "industry_comparison_tool": "Comparing company to industry peers and sector",
-                        # Portfolio management tools
-                        "portfolio_optimization_tool": "Optimizing portfolio asset allocation",
-                        "portfolio_analysis_tool": "Analyzing portfolio performance metrics",
-                        "portfolio_rebalance_tool": "Generating portfolio rebalancing recommendations",
-                        "portfolio_stress_test_tool": "Testing portfolio in stress scenarios",
-                        # User personalization tools
-                        "user_profile_tool": "Creating user investment profile",
-                        "user_preferences_tool": "Updating user investment preferences",
-                        "investment_goal_tool": "Adding user investment goals",
-                        "personalized_recommendations_tool": "Getting personalized investment recommendations",
-                        # Macroeconomic context tools
-                        "economic_indicators_tool": "Retrieving economic indicators data",
-                        "sector_performance_tool": "Analyzing sector performance",
-                        "interest_rate_sensitivity_tool": "Analyzing interest rate sensitivity",
-                        "inflation_sensitivity_tool": "Analyzing inflation sensitivity",
-                        "macroeconomic_context_tool": "Getting comprehensive macroeconomic context"
-                    }
-                    
-                    description = tool_descriptions.get(tool_name, "Processing")
-                    print(f"\n{Fore.MAGENTA}💡 {description}...{Style.RESET_ALL}")
-                    
-                    # For specific tools, provide more details
-                    if tool_name == "forecast_tool":
-                        try:
-                            params = eval(input_str)
-                            ticker = params.get("ticker", "").upper()
-                            days = params.get("days", 5)
-                            model_type = params.get("model_type", "random_forest")
-                            print(f"{Fore.MAGENTA}   Forecasting {ticker} for {days} days using {model_type} model{Style.RESET_ALL}")
-                        except:
-                            pass
-                    elif tool_name == "financial_insights_tool":
-                        try:
-                            params = eval(input_str)
-                            ticker = params.get("ticker", "").upper()
-                            query = params.get("query", "")
-                            if query:
-                                print(f"{Fore.MAGENTA}   Analyzing {ticker} with focus on: {query}{Style.RESET_ALL}")
-                            else:
-                                print(f"{Fore.MAGENTA}   Performing comprehensive analysis of {ticker}{Style.RESET_ALL}")
-                        except:
-                            pass
-                    
-                def on_tool_end(self, output):
-                    formatted = format_stock_data(output)
-                    if formatted:
-                        print(f"\n{formatted}\n")
-                    self.tool_outputs.append(output)
-                    
-                    # Add a summary of what was found
-                    print(f"{Fore.MAGENTA}✓ Data retrieved successfully{Style.RESET_ALL}")
-                    
-                def on_tool_error(self, error):
-                    print(f"\n{Fore.RED}⚠️ Tool Error: {error}{Style.RESET_ALL}\n")
-            
-            # Initialize the formatter
-            formatter = ToolOutputFormatter()
-            
-            # Invoke the agent with the formatter
-            response = agent_with_chat_history.invoke(
-                {"input": user_input},
-                {"configurable": {"session_id": "default", "callbacks": [formatter]}}
+            # Create the agent with chat history
+            agent_with_chat_history = RunnableWithMessageHistory(
+                agent_executor,
+                get_session_history,
+                input_messages_key="input",
+                history_messages_key="chat_history",
             )
-            
-            # Format and print the agent's response
-            formatted_response = format_agent_response(response['output'])
-            print(f"\n{Fore.CYAN}{'='*50}{Style.RESET_ALL}")
-            print(f"{Fore.CYAN}🧠 Agent Response:{Style.RESET_ALL}")
-            print(f"{formatted_response}\n")
-            print(f"{Fore.CYAN}{'='*50}{Style.RESET_ALL}\n")
+
+            # Use a custom tool output formatter to display tool usage
+            formatter = ToolOutputFormatter()
+
+            # Invoke the agent
+            response = agent_with_chat_history.invoke(
+                {"input": user_message},
+                config={"callbacks": [formatter], "configurable": {"session_id": session_id}},
+            )
+
+            # Format and print the response
+            formatted_response = format_agent_response(response["output"])
+            print(Fore.GREEN + "\nFinance Agent:\n" +
+                  Style.RESET_ALL + formatted_response)
 
         except Exception as e:
-            print(f"\n{Fore.RED}⚠️ Error: {str(e)}{Style.RESET_ALL}\n")
+            print(Fore.RED + f"An error occurred: {e}")
+
+
+if __name__ == "__main__":
+    main()
