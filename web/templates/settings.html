@@ -1,57 +1,561 @@
-{% extends "layout.html" %}
-{% block content %}
-<div class="container mt-5">
-    <div class="row">
-        <div class="col-md-8 offset-md-2">
-            <div class="card">
-                <div class="card-header bg-primary text-white">
-                    <h3 class="mb-0">API Settings</h3>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings - Finance Agent</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            margin: 0;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(120, 219, 255, 0.1) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        .settings-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            position: relative;
+            z-index: 5;
+        }
+
+        .settings-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .settings-header h1 {
+            font-size: 3rem;
+            margin-bottom: 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+
+        .settings-header p {
+            font-size: 1.1rem;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 0;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            margin-bottom: 24px;
+            overflow: hidden;
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 24px;
+            border-radius: 20px 20px 0 0 !important;
+        }
+
+        .card-header h4, .card-header h5 {
+            margin: 0;
+            color: #2d3748;
+            font-weight: 600;
+        }
+
+        .card-body {
+            padding: 32px;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .form-control {
+            border-radius: 12px;
+            border: 2px solid rgba(102, 126, 234, 0.2);
+            padding: 16px 20px;
+            font-size: 15px;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            border-color: rgba(102, 126, 234, 0.6);
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+            background: rgba(255, 255, 255, 0.95);
+        }
+
+        .form-text {
+            color: #718096;
+            font-size: 14px;
+            margin-top: 8px;
+        }
+
+        .form-text a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .form-text a:hover {
+            text-decoration: underline;
+        }
+
+        .btn {
+            border-radius: 12px;
+            padding: 12px 24px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.6);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.9);
+            color: #4a5568;
+            border: 2px solid rgba(74, 85, 104, 0.2);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 1);
+            transform: translateY(-1px);
+        }
+
+        .btn-outline-secondary {
+            background: rgba(255, 255, 255, 0.8);
+            border: 2px solid rgba(74, 85, 104, 0.3);
+            color: #4a5568;
+        }
+
+        .btn-outline-secondary:hover {
+            background: rgba(255, 255, 255, 1);
+            border-color: rgba(74, 85, 104, 0.5);
+        }
+
+        .alert {
+            border-radius: 12px;
+            border: none;
+            padding: 16px 20px;
+            margin-bottom: 24px;
+        }
+
+        .alert-success {
+            background: rgba(72, 187, 120, 0.1);
+            color: #2f855a;
+            border: 1px solid rgba(72, 187, 120, 0.3);
+        }
+
+        .api-key-info {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
+            border: 1px solid rgba(102, 126, 234, 0.2);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 32px;
+        }
+
+        .api-key-info h6 {
+            color: #667eea;
+            margin-bottom: 16px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .api-key-info ul {
+            margin-bottom: 16px;
+            padding-left: 20px;
+        }
+
+        .api-key-info li {
+            color: #4a5568;
+            margin-bottom: 8px;
+            line-height: 1.5;
+        }
+
+        .api-key-info li strong {
+            color: #2d3748;
+        }
+
+        .instructions-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 32px;
+            margin-top: 24px;
+        }
+
+        .instruction-section h6 {
+            color: #2d3748;
+            margin-bottom: 16px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .instruction-section ol {
+            padding-left: 20px;
+        }
+
+        .instruction-section li {
+            color: #4a5568;
+            margin-bottom: 8px;
+            line-height: 1.5;
+        }
+
+        .instruction-section a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .instruction-section a:hover {
+            text-decoration: underline;
+        }
+
+        .toggle-password-btn {
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #718096;
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 4px;
+            transition: color 0.2s ease;
+        }
+
+        .toggle-password-btn:hover {
+            color: #4a5568;
+        }
+
+        .input-group {
+            position: relative;
+        }
+
+        @media (max-width: 768px) {
+            .settings-header h1 {
+                font-size: 2.5rem;
+            }
+
+            .instructions-grid {
+                grid-template-columns: 1fr;
+                gap: 24px;
+            }
+
+            .card-body {
+                padding: 24px;
+            }
+
+            .settings-container {
+                padding: 20px 15px;
+            }
+        }
+
+        /* Navbar styling to match main app */
+        .navbar {
+            background: linear-gradient(135deg, rgba(15, 12, 41, 0.95) 0%, rgba(36, 36, 62, 0.95) 100%) !important;
+            backdrop-filter: blur(25px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            position: relative;
+            z-index: 1000;
+        }
+
+        .navbar::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.05) 50%, transparent 100%);
+            animation: navShimmer 3s ease-in-out infinite;
+            pointer-events: none;
+        }
+
+        @keyframes navShimmer {
+            0%, 100% { opacity: 0; }
+            50% { opacity: 1; }
+        }
+
+        .navbar-brand {
+            font-weight: 800;
+            font-size: 1.6rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-decoration: none;
+            position: relative;
+            z-index: 2;
+            text-shadow: 0 0 30px rgba(102, 126, 234, 0.5);
+            transition: all 0.3s ease;
+        }
+
+        .navbar-brand:hover {
+            transform: scale(1.05);
+            filter: brightness(1.2);
+        }
+
+        .navbar-nav .nav-link {
+            color: rgba(255, 255, 255, 0.9) !important;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            position: relative;
+            padding: 8px 16px !important;
+            border-radius: 8px;
+            margin: 0 4px;
+        }
+
+        .navbar-nav .nav-link::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.2) 0%, rgba(118, 75, 162, 0.2) 100%);
+            border-radius: 8px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .navbar-nav .nav-link:hover {
+            color: white !important;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .navbar-nav .nav-link:hover::before {
+            opacity: 1;
+        }
+
+        .navbar-nav .nav-link.active {
+            color: white !important;
+            font-weight: 700;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.3) 0%, rgba(118, 75, 162, 0.3) 100%);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .navbar-toggler {
+            border: none;
+            padding: 4px 8px;
+        }
+
+        .navbar-toggler:focus {
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.3);
+        }
+
+        .navbar-toggler-icon {
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28255, 255, 255, 0.9%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='m4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/">Finance Agent</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">Chat</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/settings">Settings</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="settings-container">
+        <div class="settings-header">
+            <h1>Settings</h1>
+            <p>Configure your API keys to unlock the full potential of FinanceGPT</p>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h4><i class="fas fa-key me-2"></i>API Configuration</h4>
+            </div>
+            <div class="card-body">
+                {% if message %}
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        <i class="fas fa-check-circle me-2"></i>{{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endif %}
+
+                <div class="api-key-info">
+                    <h6><i class="fas fa-info-circle"></i>Required API Keys</h6>
+                    <ul>
+                        <li><strong>OpenAI API Key:</strong> Powers the AI chat functionality and financial analysis</li>
+                        <li><strong>Alpha Vantage API Key:</strong> Provides real-time stock market data and technical indicators</li>
+                    </ul>
+                    <p class="mb-0"><small class="text-muted">Both keys are essential for the application to function properly. Your keys are stored securely and never shared.</small></p>
                 </div>
-                <div class="card-body">
-                    {% with messages = get_flashed_messages(with_categories=true) %}
-                        {% if messages %}
-                            {% for category, message in messages %}
-                                <div class="alert alert-{{ category }}">{{ message }}</div>
-                            {% endfor %}
-                        {% endif %}
-                    {% endwith %}
-                    
-                    <form id="api-keys-form" method="POST" action="/save_api_keys">
-                        <div class="form-group mb-3">
-                            <label for="openai_api_key">OpenAI API Key:</label>
-                            <input type="text" id="openai_api_key" name="openai_api_key" 
-                                value="{{ current_keys.get('openai_api_key', '') }}" class="form-control">
-                            <small class="form-text text-muted">Get your key at <a href="https://platform.openai.com/account/api-keys" target="_blank">platform.openai.com</a></small>
+
+                <form method="POST" action="/save_api_keys">
+                    <div class="mb-4">
+                        <label for="openai_api_key" class="form-label">
+                            <i class="fas fa-robot"></i>OpenAI API Key
+                        </label>
+                        <div class="input-group">
+                            <input 
+                                type="password" 
+                                class="form-control" 
+                                id="openai_api_key" 
+                                name="openai_api_key" 
+                                value="{{ current_keys.get('openai_api_key', '') }}"
+                                placeholder="sk-..."
+                                required
+                            >
+                            <button type="button" class="toggle-password-btn" data-target="openai_api_key">
+                                <i class="fas fa-eye"></i>
+                            </button>
                         </div>
-                        
-                        <div class="form-group mb-3">
-                            <label for="alpha_vantage_key">Alpha Vantage API Key:</label>
-                            <input type="text" id="alpha_vantage_key" name="alpha_vantage_key" 
-                                value="{{ current_keys.get('alpha_vantage_key', '') }}" class="form-control">
-                            <small class="form-text text-muted">Get your key at <a href="https://www.alphavantage.co/support/#api-key" target="_blank">alphavantage.co</a></small>
+                        <div class="form-text">
+                            Get your API key from <a href="https://platform.openai.com/api-keys" target="_blank">OpenAI Platform</a>
                         </div>
-                        
-                        <button type="submit" class="btn btn-primary">Save API Keys</button>
-                    </form>
-                </div>
-                <div class="card-footer">
-                    <p class="mb-0"><small>Your API keys are stored securely and are only used for your requests.</small></p>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="alpha_vantage_key" class="form-label">
+                            <i class="fas fa-chart-line"></i>Alpha Vantage API Key
+                        </label>
+                        <div class="input-group">
+                            <input 
+                                type="password" 
+                                class="form-control" 
+                                id="alpha_vantage_key" 
+                                name="alpha_vantage_key" 
+                                value="{{ current_keys.get('alpha_vantage_key', '') }}"
+                                placeholder="Your Alpha Vantage API key"
+                                required
+                            >
+                            <button type="button" class="toggle-password-btn" data-target="alpha_vantage_key">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                        <div class="form-text">
+                            Get your free API key from <a href="https://www.alphavantage.co/support/#api-key" target="_blank">Alpha Vantage</a>
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-3 flex-wrap">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>Save Configuration
+                        </button>
+                        <a href="/" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>Back to Chat
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-graduation-cap me-2"></i>Setup Guide</h5>
+            </div>
+            <div class="card-body">
+                <div class="instructions-grid">
+                    <div class="instruction-section">
+                        <h6><i class="fas fa-robot"></i>OpenAI API Key</h6>
+                        <ol>
+                            <li>Visit <a href="https://platform.openai.com" target="_blank">OpenAI Platform</a></li>
+                            <li>Sign up or log in to your account</li>
+                            <li>Navigate to the API Keys section</li>
+                            <li>Click "Create new secret key"</li>
+                            <li>Copy the key and paste it above</li>
+                        </ol>
+                        <p><small class="text-muted">Note: You'll need to add billing information to use the API.</small></p>
+                    </div>
+                    <div class="instruction-section">
+                        <h6><i class="fas fa-chart-line"></i>Alpha Vantage API Key</h6>
+                        <ol>
+                            <li>Visit <a href="https://www.alphavantage.co" target="_blank">Alpha Vantage</a></li>
+                            <li>Click "Get Free API Key"</li>
+                            <li>Fill out the registration form</li>
+                            <li>Check your email for the API key</li>
+                            <li>Copy the key and paste it above</li>
+                        </ol>
+                        <p><small class="text-muted">The free tier includes 25 requests per day.</small></p>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
-{% endblock %}
 
-{% block scripts %}
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const form = document.getElementById('api-keys-form');
-        
-        form.addEventListener('submit', function(e) {
-            // You can add client-side validation here if needed
-            // For example, check if keys match expected formats
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Enhanced password toggle functionality
+        document.querySelectorAll('.toggle-password-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const targetId = btn.getAttribute('data-target');
+                const input = document.getElementById(targetId);
+                const icon = btn.querySelector('i');
+                
+                if (input.type === 'password') {
+                    input.type = 'text';
+                    icon.className = 'fas fa-eye-slash';
+                } else {
+                    input.type = 'password';
+                    icon.className = 'fas fa-eye';
+                }
+            });
         });
-    });
-</script>
-{% endblock %}
+
+        // Auto-dismiss alerts after 5 seconds
+        setTimeout(() => {
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(alert => {
+                const bsAlert = new bootstrap.Alert(alert);
+                bsAlert.close();
+            });
+        }, 5000);
+    </script>
+</body>
+</html>
