@@ -1,50 +1,48 @@
-# 🚀 Quick Start Guide for FinanceGPT
+# Quick Start Guide - FinanceGPT
 
-This guide will help you get FinanceGPT running in just a few minutes!
+Get up and running with FinanceGPT in under 5 minutes!
 
-## 📋 Before You Start
+## 🚀 One-Command Setup
 
-Make sure you have:
-- **Python 3.9, 3.10, or 3.11** installed (NOT 3.12+)
-- **Git** installed
-- An **OpenAI API key** (required)
-- An **Alpha Vantage API key** (required, free)
-
-## 🎯 Super Quick Setup (Automated)
-
-### Option 1: Linux/macOS (Recommended)
+### Linux/Mac
 ```bash
-# Clone the repository
-git clone https://github.com/yourusername/finance-agent.git
-cd finance-agent
+chmod +x setup.sh && ./setup.sh
+```
 
-# Run the automated setup script
-./setup.sh
+### Windows
+```cmd
+setup.bat
+```
 
-# Edit your API keys
-nano .env
+## 📋 Manual Setup (if scripts don't work)
 
-# Start the application
-source venv/bin/activate
+### 1. Install Python Dependencies
+```bash
+pip install -r requirements.txt
+```
+
+### 2. Set Up Environment Variables
+```bash
+# Copy the example file
+cp .env.example .env
+
+# Edit .env with your API keys
+nano .env  # or use any text editor
+```
+
+Add your API keys to `.env`:
+```
+OPENAI_API_KEY=sk-your-openai-key-here
+ALPHA_VANTAGE_API_KEY=your-alpha-vantage-key-here
+```
+
+### 3. Start the Application
+```bash
 python web/app.py
 ```
 
-### Option 2: Windows
-```cmd
-# Clone the repository
-git clone https://github.com/yourusername/finance-agent.git
-cd finance-agent
-
-# Run the automated setup script
-setup.bat
-
-# Edit your API keys (will open automatically)
-# Add your OpenAI and Alpha Vantage API keys
-
-# Start the application
-venv\Scripts\activate.bat
-python web\app.py
-```
+### 4. Open Your Browser
+Navigate to: `http://localhost:5001`
 
 ## 🔑 Getting API Keys
 
@@ -54,53 +52,82 @@ python web\app.py
 3. Go to "API Keys" section
 4. Click "Create new secret key"
 5. Copy the key (starts with `sk-`)
+6. **Important**: Add billing information to your OpenAI account
 
-### Alpha Vantage API Key (Required, Free)
-1. Go to [alphavantage.co/support/#api-key](https://www.alphavantage.co/support/#api-key)
+### Alpha Vantage API Key (Required)
+1. Go to [alphavantage.co](https://www.alphavantage.co)
 2. Click "Get Free API Key"
 3. Fill out the form
 4. Check your email for the key
+5. Free tier: 25 requests/day
 
-## 🌐 Access the Application
+## 🎯 First Steps
 
-Once running, open your browser and go to:
-**http://localhost:5001**
+1. **Choose a conversation type**:
+   - Company Research
+   - ETF Portfolio Planning
+   - Savings Goal Planning
 
-## 🆘 Having Issues?
+2. **Try these example queries**:
+   - "Analyze Apple stock"
+   - "Help me build a retirement portfolio"
+   - "I want to save $50,000 for a house down payment"
 
-### Common Problems:
+3. **Configure settings**:
+   - Click "Settings" in the top navigation
+   - Enter your API keys if not done via `.env`
 
-**Python Version Issues:**
+## 🔧 Troubleshooting
+
+### Common Issues
+
+**"No module named 'xyz'"**
 ```bash
-python --version  # Should show 3.9, 3.10, or 3.11
-```
-
-**Permission Issues (Linux/macOS):**
-```bash
-chmod +x setup.sh
-```
-
-**Dependencies Failing:**
-```bash
-# Try installing PyTorch separately first
-pip install torch==2.1.2 --index-url https://download.pytorch.org/whl/cpu
 pip install -r requirements.txt
 ```
 
-**Port Already in Use:**
-- Change port in `web/app.py` from 5001 to 5002
+**"OpenAI API key not found"**
+- Check your `.env` file has the correct key
+- Or add keys via the Settings page
+- Ensure no extra spaces or quotes
 
-### Need More Help?
-- Check the detailed [README.md](README.md) file
-- Look at the troubleshooting section
-- Create an issue on GitHub
+**"Alpha Vantage API limit exceeded"**
+- Free tier has 25 requests/day
+- Wait 24 hours or upgrade to paid plan
+
+**"Port 5001 already in use"**
+```bash
+# Kill the process using port 5001
+lsof -ti:5001 | xargs kill -9
+
+# Or change the port in web/app.py
+```
+
+**Database errors**
+```bash
+# Remove the database file to reset
+rm web/finance_chat.db
+```
+
+### Getting Help
+
+1. Check the full [README.md](README.md) for detailed documentation
+2. Look at the error messages in the terminal
+3. Ensure all API keys are valid and have billing set up
+4. Try restarting the application
+
+## 💡 Usage Tips
+
+- **Start simple**: Try basic queries before complex ones
+- **Be specific**: "Analyze AAPL for long-term investment" vs "Tell me about Apple"
+- **Provide context**: Mention your investment timeline and risk tolerance
+- **Use the chat history**: Previous conversations are saved automatically
+- **Explore features**: Try different conversation types to see all capabilities
 
 ## 🎉 You're Ready!
 
-Once the application is running:
-1. Go to **Settings** and add your API keys
-2. Start chatting with the financial assistant
-3. Try the **Guided Mode** for structured planning
-4. Explore different financial analysis features
+Once you see the FinanceGPT interface at `http://localhost:5001`, you're all set! Start with a simple company analysis or ETF recommendation to test everything is working.
 
-**Happy Financial Analysis! 📈💰**
+---
+
+**Need more help?** Check the full [README.md](README.md) or review the code documentation.

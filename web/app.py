@@ -23,7 +23,7 @@ from chat_agent import (
 app = Flask(__name__, static_folder='static', template_folder='templates')
 
 # Database setup
-DB_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'database', 'finance_chat.db')
+DB_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'finance_chat.db')
 
 def init_db():
     """Initialize the database with required tables"""

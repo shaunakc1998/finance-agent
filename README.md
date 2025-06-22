@@ -1,407 +1,205 @@
-# FinanceGPT - Advanced Financial Research Agent
+# FinanceGPT - AI-Powered Financial Planning Assistant
 
-[![Python Lint and Test](https://github.com/yourusername/finance-agent/actions/workflows/python-lint-test.yml/badge.svg)](https://github.com/yourusername/finance-agent/actions/workflows/python-lint-test.yml)
-[![Docker Build](https://github.com/yourusername/finance-agent/actions/workflows/docker-build.yml/badge.svg)](https://github.com/yourusername/finance-agent/actions/workflows/docker-build.yml)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+A comprehensive financial planning and investment research tool powered by AI. Get personalized investment advice, company analysis, ETF recommendations, and savings goal planning.
 
-A comprehensive financial research agent with advanced price forecasting capabilities using machine learning models and in-depth financial analysis with vector search. Features a modern web interface for easy interaction and API key management.
+## 🚀 Features
 
-## 🚀 Quick Start
+- **Company Research**: Deep analysis of stocks with fundamentals, technicals, and earnings insights
+- **ETF Portfolio Planning**: Personalized ETF recommendations and portfolio optimization
+- **Savings Goal Planning**: Comprehensive financial planning for specific goals
+- **Real-time Market Data**: Live stock prices and technical indicators
+- **AI-Powered Analysis**: GPT-4 powered financial insights and recommendations
+- **Interactive Web Interface**: Clean, modern web interface with chat history
+- **Personalized Recommendations**: Tailored advice based on your financial situation
 
-> **🎯 Super Fast Setup**: Use our automated setup scripts!
-> - **Linux/macOS**: Run `./setup.sh`
-> - **Windows**: Run `setup.bat`
-> - **Need help?**: See [QUICK_START.md](QUICK_START.md)
+## 📁 Project Structure
+
+```
+finance-agent/
+├── README.md                 # This file
+├── requirements.txt          # Python dependencies
+├── .env.example             # Environment variables template
+├── setup.sh                 # Linux/Mac setup script
+├── setup.bat                # Windows setup script
+├── QUICK_START.md           # Quick start guide
+├── LICENSE                  # MIT License
+│
+├── chat_agent.py            # Core AI agent with financial tools
+│
+├── tools/                   # Financial analysis tools
+│   ├── economic_factors.py  # Economic indicators and analysis
+│   ├── financial_analysis.py # Company financial insights
+│   ├── forecast.py          # Price forecasting models
+│   ├── fundamentals.py      # Fundamental analysis
+│   ├── portfolio.py         # Portfolio optimization
+│   ├── product_search.py    # Product pricing research
+│   ├── strategy.py          # Investment strategy recommendations
+│   ├── technicals.py        # Technical analysis
+│   ├── user_profile.py      # User personalization
+│   └── visualization.py     # Data visualization
+│
+└── web/                     # Web application
+    ├── app.py               # Flask web server
+    ├── finance_chat.db      # SQLite database (created on first run)
+    ├── static/
+    │   ├── css/
+    │   │   ├── guided_styles.css  # Main app styles
+    │   │   └── styles.css         # Settings page styles
+    │   └── js/
+    │       └── guided_chat.js     # Frontend JavaScript
+    └── templates/
+        ├── guided_chat.html       # Main chat interface
+        └── settings.html          # API key configuration
+```
+
+## 🛠️ Installation
 
 ### Prerequisites
 
-- **Python 3.9 - 3.11** (Required - Python 3.12+ may have compatibility issues with some dependencies)
-- **pip** (Python package manager)
-- **Git** (for cloning the repository)
+- Python 3.8 or higher
+- OpenAI API key
+- Alpha Vantage API key (free)
 
-### 1. Clone the Repository
+### Quick Setup
 
-```bash
-git clone https://github.com/yourusername/finance-agent.git
-cd finance-agent
-```
+1. **Clone the repository**
+   ```bash
+   git clone <repository-url>
+   cd finance-agent
+   ```
 
-### 2. Create Virtual Environment (Recommended)
+2. **Run the setup script**
+   
+   **Linux/Mac:**
+   ```bash
+   chmod +x setup.sh
+   ./setup.sh
+   ```
+   
+   **Windows:**
+   ```cmd
+   setup.bat
+   ```
 
-```bash
-# Create virtual environment
-python -m venv venv
+3. **Configure API keys**
+   - Copy `.env.example` to `.env`
+   - Add your API keys to `.env` file
+   - Or configure them through the web interface at `/settings`
 
-# Activate virtual environment
-# On Windows:
-venv\Scripts\activate
-# On macOS/Linux:
-source venv/bin/activate
-```
+4. **Start the application**
+   ```bash
+   python web/app.py
+   ```
 
-### 3. Install Dependencies
+5. **Open your browser**
+   Navigate to `http://localhost:5001`
 
-```bash
-# Upgrade pip first
-pip install --upgrade pip
+### Manual Installation
 
-# Install all dependencies
-pip install -r requirements.txt
-```
+1. **Install dependencies**
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-### 4. Set Up Environment Variables
+2. **Set up environment variables**
+   ```bash
+   cp .env.example .env
+   # Edit .env with your API keys
+   ```
 
-```bash
-# Copy the example environment file
-cp .env.example .env
+3. **Run the application**
+   ```bash
+   python web/app.py
+   ```
 
-# Edit the .env file with your API keys
-# You can use any text editor, for example:
-nano .env
-```
+## 🔑 API Keys Setup
 
-Add your API keys to the `.env` file:
-```env
-OPENAI_API_KEY=your_openai_api_key_here
-ALPHA_VANTAGE_API_KEY=your_alpha_vantage_api_key_here
-```
-
-### 5. Run the Application
-
-```bash
-# Start the web application
-python web/app.py
-```
-
-Open your browser and navigate to **http://localhost:5001**
-
-## 📋 System Requirements
-
-### Python Version
-- **Required**: Python 3.9, 3.10, or 3.11
-- **Not supported**: Python 3.12+ (due to dependency compatibility issues)
-
-### Operating System
-- **Windows**: Windows 10/11
-- **macOS**: macOS 10.15+
-- **Linux**: Ubuntu 18.04+, CentOS 7+, or equivalent
-
-### Hardware Requirements
-- **RAM**: Minimum 4GB, Recommended 8GB+
-- **Storage**: 2GB free space for dependencies and models
-- **CPU**: Any modern CPU (multi-core recommended for ML training)
-
-## 🔧 Detailed Installation Guide
-
-### Step 1: Check Python Version
-
-```bash
-python --version
-```
-
-If you don't have Python 3.9-3.11, install it:
-
-**Windows:**
-- Download from [python.org](https://www.python.org/downloads/)
-- Or use [pyenv-win](https://github.com/pyenv-win/pyenv-win)
-
-**macOS:**
-```bash
-# Using Homebrew
-brew install python@3.11
-
-# Using pyenv
-brew install pyenv
-pyenv install 3.11.7
-pyenv global 3.11.7
-```
-
-**Linux (Ubuntu/Debian):**
-```bash
-sudo apt update
-sudo apt install python3.11 python3.11-venv python3.11-pip
-```
-
-### Step 2: Clone and Setup
-
-```bash
-# Clone the repository
-git clone https://github.com/yourusername/finance-agent.git
-cd finance-agent
-
-# Create virtual environment with specific Python version
-python3.11 -m venv venv
-
-# Activate virtual environment
-source venv/bin/activate  # macOS/Linux
-# OR
-venv\Scripts\activate     # Windows
-
-# Verify you're using the correct Python
-which python  # Should show path to venv
-python --version  # Should show Python 3.9-3.11
-```
-
-### Step 3: Install Dependencies
-
-```bash
-# Upgrade pip to latest version
-pip install --upgrade pip setuptools wheel
-
-# Install dependencies (this may take 5-10 minutes)
-pip install -r requirements.txt
-```
-
-### Step 4: Get API Keys
-
-#### OpenAI API Key (Required)
-1. Go to [OpenAI Platform](https://platform.openai.com)
+### OpenAI API Key
+1. Visit [OpenAI Platform](https://platform.openai.com)
 2. Sign up or log in
 3. Navigate to API Keys section
-4. Click "Create new secret key"
-5. Copy the key (starts with `sk-`)
+4. Create a new secret key
+5. Add billing information (required for API usage)
 
-#### Alpha Vantage API Key (Required)
-1. Go to [Alpha Vantage](https://www.alphavantage.co/support/#api-key)
+### Alpha Vantage API Key
+1. Visit [Alpha Vantage](https://www.alphavantage.co)
 2. Click "Get Free API Key"
-3. Fill out the form
+3. Fill out the registration form
 4. Check your email for the API key
+5. Free tier includes 25 requests per day
 
-### Step 5: Configure Environment
-
-```bash
-# Copy example environment file
-cp .env.example .env
-
-# Edit with your preferred editor
-nano .env
-# OR
-code .env  # If you have VS Code
-# OR
-notepad .env  # Windows
-```
-
-Your `.env` file should look like:
-```env
-# OpenAI Configuration
-OPENAI_API_KEY=sk-your-openai-key-here
-
-# Alpha Vantage Configuration  
-ALPHA_VANTAGE_API_KEY=your-alpha-vantage-key-here
-
-# Optional: Flask Configuration
-FLASK_ENV=development
-FLASK_DEBUG=True
-```
-
-### Step 6: Run the Application
-
-```bash
-# Start the web server
-python web/app.py
-```
-
-You should see output like:
-```
-Database initialized at /path/to/finance-agent/web/database/finance_chat.db
- * Running on all addresses (0.0.0.0)
- * Running on http://127.0.0.1:5001
- * Running on http://[your-ip]:5001
-```
-
-Open your browser and go to **http://localhost:5001**
-
-## 🐛 Troubleshooting
-
-### Common Issues and Solutions
-
-#### 1. Python Version Issues
-**Error**: `ModuleNotFoundError` or compatibility warnings
-
-**Solution**: Ensure you're using Python 3.9-3.11:
-```bash
-python --version
-# If wrong version, create new venv with correct Python
-python3.11 -m venv venv_new
-source venv_new/bin/activate
-pip install -r requirements.txt
-```
-
-#### 2. Dependency Installation Failures
-**Error**: `Failed building wheel` or compilation errors
-
-**Solution**: Install build tools:
-```bash
-# Windows
-pip install --upgrade setuptools wheel
-
-# macOS
-xcode-select --install
-brew install cmake
-
-# Linux (Ubuntu/Debian)
-sudo apt install build-essential python3-dev
-```
-
-#### 3. PyTorch Installation Issues
-**Error**: PyTorch installation fails or is very slow
-
-**Solution**: Install PyTorch separately:
-```bash
-# CPU-only version (faster download)
-pip install torch==2.1.2 --index-url https://download.pytorch.org/whl/cpu
-
-# Then install other requirements
-pip install -r requirements.txt
-```
-
-#### 4. Memory Issues During Installation
-**Error**: `MemoryError` during pip install
-
-**Solution**: Install packages one by one:
-```bash
-pip install --no-cache-dir -r requirements.txt
-# OR install in smaller batches
-pip install Flask==3.0.0 openai==1.51.2 langchain==0.3.7
-pip install pandas==2.1.4 numpy==1.24.4 scikit-learn==1.3.2
-# Continue with remaining packages
-```
-
-#### 5. Port Already in Use
-**Error**: `Address already in use` on port 5001
-
-**Solution**: Use a different port:
-```bash
-# Edit web/app.py and change the last line to:
-app.run(debug=True, port=5002, host='0.0.0.0')
-```
-
-#### 6. API Key Issues
-**Error**: OpenAI or Alpha Vantage API errors
-
-**Solution**: 
-- Verify API keys are correct in `.env` file
-- Check API key quotas and billing
-- Test API keys independently:
-```bash
-python -c "
-import openai
-import os
-from dotenv import load_dotenv
-load_dotenv()
-client = openai.OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
-print('OpenAI API key is valid')
-"
-```
-
-#### 7. Database Issues
-**Error**: SQLite database errors
-
-**Solution**: Delete and recreate database:
-```bash
-rm -rf web/database/
-python web/app.py  # Will recreate database
-```
-
-### Performance Optimization
-
-#### For Faster Startup
-```bash
-# Install only essential packages for basic functionality
-pip install Flask==3.0.0 openai==1.51.2 langchain==0.3.7 langchain-openai==0.2.8 python-dotenv==1.0.0 requests==2.31.0
-```
-
-#### For Better ML Performance
-```bash
-# Install with GPU support (if you have NVIDIA GPU)
-pip install torch==2.1.2 --index-url https://download.pytorch.org/whl/cu118
-```
-
-## 🐳 Docker Installation (Alternative)
-
-If you prefer Docker or have dependency issues:
-
-```bash
-# Clone repository
-git clone https://github.com/yourusername/finance-agent.git
-cd finance-agent
-
-# Create .env file with your API keys
-cp .env.example .env
-# Edit .env with your API keys
-
-# Build and run with Docker Compose
-docker-compose up -d
-
-# View logs
-docker-compose logs -f
-```
-
-Access the application at **http://localhost:5001**
-
-## 🌟 Features
+## 💡 Usage
 
 ### Web Interface
-- **Modern UI**: Responsive design with glassmorphism effects
-- **Chat History**: Save and revisit previous conversations
-- **API Key Management**: Secure storage and management of API keys
-- **Guided Mode**: Step-by-step financial planning assistance
-- **Settings Page**: Easy configuration management
 
-### Financial Analysis
-- **Fundamental Analysis**: P/E ratio, EPS, market cap, financial ratios
-- **Technical Analysis**: RSI, SMA, MACD, Bollinger Bands
-- **Price Forecasting**: ML-based predictions with confidence intervals
-- **Investment Strategy**: Buy/sell/hold recommendations
-- **ETF Analysis**: Portfolio recommendations and SIP planning
-- **Economic Factors**: Macro-economic analysis and impact assessment
+1. **Start a conversation**: Choose from company research, ETF exploration, or savings goals
+2. **Get personalized advice**: Provide your financial context for tailored recommendations
+3. **Explore features**: Use the chat interface to ask about any financial topic
+4. **Manage conversations**: Save, rename, and organize your chat history
 
-### Machine Learning Models
-- **Random Forest**: Non-linear pattern recognition
-- **Gradient Boost**: High accuracy predictions
-- **Ensemble Models**: Combined model predictions
-- **Neural Networks**: Deep learning approaches
-- **ARIMA**: Time series statistical modeling
+### Command Line Interface
 
-## 📊 Usage Examples
-
-### Web Interface
-1. Open http://localhost:5001
-2. Go to Settings and add your API keys
-3. Start chatting with the financial assistant
-4. Try guided mode for structured financial planning
-
-### Example Queries
-- "Analyze AAPL stock fundamentals"
-- "What's the technical analysis for TSLA?"
-- "Create a diversified ETF portfolio for $10,000"
-- "Forecast NVDA price for next 20 days"
-- "Compare MSFT vs GOOGL investment potential"
-
-### CLI Usage (Alternative)
+Run the chat agent directly:
 ```bash
 python chat_agent.py
 ```
 
+### Example Queries
+
+- "Analyze Apple stock for a long-term investment"
+- "Help me build a diversified ETF portfolio with $10,000"
+- "I want to save for a Tesla Model 3, help me create a plan"
+- "What are the best dividend ETFs for retirement?"
+- "Compare Microsoft vs Google for investment"
+
+## 🧰 Core Tools
+
+- **Fundamentals Analysis**: P/E ratios, EPS, market cap, financial health
+- **Technical Analysis**: RSI, moving averages, trend analysis
+- **Earnings Insights**: Recent earnings calls, SEC filings, management commentary
+- **Industry Comparison**: Peer analysis and sector performance
+- **Economic Factors**: Interest rates, inflation, macroeconomic context
+- **Portfolio Optimization**: Modern portfolio theory, risk-adjusted returns
+- **Price Forecasting**: Machine learning models for price predictions
+- **Savings Planning**: Goal-based financial planning with investment strategies
+
+## 🔧 Configuration
+
+### Environment Variables
+
+Create a `.env` file with:
+```
+OPENAI_API_KEY=your_openai_api_key_here
+ALPHA_VANTAGE_API_KEY=your_alpha_vantage_key_here
+```
+
+### Web Interface Settings
+
+Configure API keys through the web interface:
+1. Navigate to `/settings`
+2. Enter your API keys
+3. Keys are stored securely in the local database
+
+## 🚀 Deployment
+
+### Local Development
+```bash
+python web/app.py
+```
+
+### Production Deployment
+- Use a production WSGI server like Gunicorn
+- Set up environment variables securely
+- Configure database backups
+- Use HTTPS in production
+
 ## 🤝 Contributing
 
-We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
-
-### Development Setup
-```bash
-# Install development dependencies
-pip install -r requirements.txt
-pip install pytest black flake8
-
-# Run tests
-pytest
-
-# Format code
-black .
-
-# Lint code
-flake8 .
-```
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Add tests if applicable
+5. Submit a pull request
 
 ## 📄 License
 
@@ -409,31 +207,20 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🆘 Support
 
-If you encounter issues:
+- Check the [QUICK_START.md](QUICK_START.md) for common issues
+- Review the code documentation in each module
+- Open an issue for bugs or feature requests
 
-1. Check the [Troubleshooting](#-troubleshooting) section above
-2. Search existing [GitHub Issues](https://github.com/yourusername/finance-agent/issues)
-3. Create a new issue with:
-   - Your Python version (`python --version`)
-   - Your operating system
-   - Full error message
-   - Steps to reproduce
+## 🔮 Roadmap
 
-## 🔄 Updates
-
-To update to the latest version:
-
-```bash
-# Pull latest changes
-git pull origin main
-
-# Update dependencies
-pip install -r requirements.txt --upgrade
-
-# Restart the application
-python web/app.py
-```
+- [ ] Additional data sources integration
+- [ ] Advanced portfolio analytics
+- [ ] Mobile-responsive design improvements
+- [ ] Export functionality for reports
+- [ ] Integration with brokerage APIs
+- [ ] Advanced charting and visualization
+- [ ] Multi-user support with authentication
 
 ---
 
-**Happy Financial Analysis! 📈💰**
+**Disclaimer**: This tool is for educational and informational purposes only. Always consult with qualified financial advisors before making investment decisions.
