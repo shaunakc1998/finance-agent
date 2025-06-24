@@ -24,7 +24,7 @@ seaborn==0.13.0
 plotly==5.17.0
 
 # Web Scraping and HTTP
-requests==2.31.0
+requests==2.32.4
 beautifulsoup4==4.12.2
 aiohttp==3.9.1
 
