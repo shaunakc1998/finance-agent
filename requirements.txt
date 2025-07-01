@@ -3,7 +3,7 @@ Flask==3.0.0
 Werkzeug==3.0.1
 
 # OpenAI and LangChain
-openai==1.51.2
+openai==1.93.0
 langchain==0.3.7
 langchain-openai==0.2.8
 langchain-core==0.3.15
