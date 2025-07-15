@@ -5,7 +5,7 @@ Werkzeug==3.0.1
 # OpenAI and LangChain
 openai==1.51.2
 langchain==0.3.7
-langchain-openai==0.2.8
+langchain-openai==0.3.28
 langchain-core==0.3.15
 langchain-community==0.3.7
 
